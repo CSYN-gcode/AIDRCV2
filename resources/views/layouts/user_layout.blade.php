@@ -13,8 +13,8 @@
         @if(count($_SESSION['rapidx_user_accesses']) > 0)
             @for($index = 0; $index < count($_SESSION['rapidx_user_accesses']); $index++)
                 @if($_SESSION['rapidx_user_accesses'][$index]['module_id'] == 2)
-                    @php 
-                        $isAuthorized = true; 
+                    @php
+                        $isAuthorized = true;
                         $user_level = $_SESSION['rapidx_user_accesses'][$index]['user_level_id'];
                     @endphp
                     @break
@@ -39,7 +39,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>AIDRC | @yield('title')</title>
+  <title>AIDRCV2 | @yield('title')</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="shortcut icon" type="image/png" href="{{ asset('public/images/favicon.ico') }}">
@@ -53,7 +53,7 @@
   @include('shared.pages.user_nav')
 
   @yield('content_page')
-  
+
   @include('shared.pages.footer')
 </div>
 @include('shared.js_links.js_links')

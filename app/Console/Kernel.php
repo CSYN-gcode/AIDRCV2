@@ -24,8 +24,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
+        $schedule->command('approval:send-reminder')->dailyAt('07:30')->timezone('Asia/Manila')->appendOutputTo(storage_path('logs/scheduler.log'));
     }
 
     /**

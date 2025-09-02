@@ -1,22 +1,5 @@
 // Add User
 function AddUser(){
-    toastr.options = {
-      "closeButton": false,
-      "debug": false,
-      "newestOnTop": true,
-      "progressBar": true,
-      "positionClass": "toast-top-right",
-      "preventDuplicates": false,
-      "onclick": null,
-      "showDuration": "300",
-      "hideDuration": "3000",
-      "timeOut": "3000",
-      "extendedTimeOut": "3000",
-      "showEasing": "swing",
-      "hideEasing": "linear",
-      "showMethod": "fadeIn",
-      "hideMethod": "fadeOut",
-    };
 
 	$.ajax({
         url: "add_user",
@@ -1416,157 +1399,38 @@ function LoadQsInspectorList(cboElement)
   });
 }
 
-function LoadSectionHeadList(cboElement)
-{
-  let result = '<option value="">N/A</option>';
-
-  $.ajax({
-
-   url: "load_section_head_list",
-   method: "get",
-   dataType: "json",
-   beforeSend: function(){
-          result = '<option value=""> -- Loading -- </option>';
-          cboElement.html(result);
-      },
-      success: function(JsonObject){
-        console.log(JsonObject);
-          result = '';
-          if(JsonObject['section_heads'].length > 0){
-              result = '<option selected disabled>-- Select One -- </option>';
-              for(let index = 0; index < JsonObject['section_heads'].length; index++){
-                  let disabled = '';
-
-                  result += '<option value="' + JsonObject['section_heads'][index].rapidx_user_details.id + '">' + JsonObject['section_heads'][index].rapidx_user_details.name + '</option>';
-              }
-          }
-          else{
-              result = '<option value=""> -- No record found -- </option>';
-          }
-
-          cboElement.html(result);
-      },
-      error: function(data, xhr, status){
-          result = '<option value=""> -- Reload Again -- </option>';
-          cboElement.html(result);
-          console.log('Data: ' + data + "\n" + "XHR: " + xhr + "\n" + "Status: " + status);
-      }
-
-  });
-}
-
-function LoadProdHeadList(cboElement)
-{
-  let result = '<option value="">N/A</option>';
-
-  $.ajax({
-
-   url: "load_prod_head_list",
-   method: "get",
-   dataType: "json",
-   beforeSend: function(){
-          result = '<option value=""> -- Loading -- </option>';
-          cboElement.html(result);
-      },
-      success: function(JsonObject){
-          result = '';
-          if(JsonObject['section_heads'].length > 0){
-              result = '<option selected disabled>-- Select One -- </option>';
-              for(let index = 0; index < JsonObject['section_heads'].length; index++){
-                  let disabled = '';
-
-                  result += '<option value="' + JsonObject['section_heads'][index].rapidx_user_details.id + '">' + JsonObject['section_heads'][index].rapidx_user_details.name + '</option>';
-              }
-          }
-          else{
-              result = '<option value=""> -- No record found -- </option>';
-          }
-
-          cboElement.html(result);
-      },
-      error: function(data, xhr, status){
-          result = '<option value=""> -- Reload Again -- </option>';
-          cboElement.html(result);
-          console.log('Data: ' + data + "\n" + "XHR: " + xhr + "\n" + "Status: " + status);
-      }
-
-  });
-}
-
-function LoadQcHeadList(cboElement)
-{
-  let result = '<option value="">N/A</option>';
-
-  $.ajax({
-
-   url: "load_qc_head_list",
-   method: "get",
-   dataType: "json",
-   beforeSend: function(){
-          result = '<option value=""> -- Loading -- </option>';
-          cboElement.html(result);
-      },
-      success: function(JsonObject){
-          result = '';
-          if(JsonObject['section_heads'].length > 0){
-              result = '<option selected disabled>-- Select One -- </option>';
-              for(let index = 0; index < JsonObject['section_heads'].length; index++){
-                  let disabled = '';
-
-                  result += '<option value="' + JsonObject['section_heads'][index].rapidx_user_details.id + '">' + JsonObject['section_heads'][index].rapidx_user_details.name + '</option>';
-              }
-          }
-          else{
-              result = '<option value=""> -- No record found -- </option>';
-          }
-
-          cboElement.html(result);
-      },
-      error: function(data, xhr, status){
-          result = '<option value=""> -- Reload Again -- </option>';
-          cboElement.html(result);
-          console.log('Data: ' + data + "\n" + "XHR: " + xhr + "\n" + "Status: " + status);
-      }
-
-  });
-}
-
-function LoadEngHeadList(cboElement)
-{
-  let result = '<option value="">N/A</option>';
-
-  $.ajax({
-
-   url: "load_eng_head_list",
-   method: "get",
-   dataType: "json",
-   beforeSend: function(){
-          result = '<option value=""> -- Loading -- </option>';
-          cboElement.html(result);
-      },
-      success: function(JsonObject){
-          result = '';
-          if(JsonObject['section_heads'].length > 0){
-              result = '<option selected disabled>-- Select One -- </option>';
-              for(let index = 0; index < JsonObject['section_heads'].length; index++){
-                  let disabled = '';
-
-                  result += '<option value="' + JsonObject['section_heads'][index].rapidx_user_details.id + '">' + JsonObject['section_heads'][index].rapidx_user_details.name + '</option>';
-              }
-          }
-          else{
-              result = '<option value=""> -- No record found -- </option>';
-          }
-
-          cboElement.html(result);
-      },
-      error: function(data, xhr, status){
-          result = '<option value=""> -- Reload Again -- </option>';
-          cboElement.html(result);
-          console.log('Data: ' + data + "\n" + "XHR: " + xhr + "\n" + "Status: " + status);
-      }
-
-  });
+function LoadSectionHeadList(cboElement){
+    let result = '<option value="">N/A</option>';
+    $.ajax({
+        url: "load_section_head_list",
+        method: "get",
+        dataType: "json",
+        beforeSend: function(){
+            result = '<option value=""> -- Loading -- </option>';
+            cboElement.html(result);
+        },
+        success: function(JsonObject){
+                console.log(JsonObject);
+                result = '';
+                if(JsonObject['section_heads'].length > 0){
+                    result = '<option selected disabled>-- Select One -- </option>';
+                    for(let index = 0; index < JsonObject['section_heads'].length; index++){
+                        if(JsonObject['section_heads'][index].rapidx_user_details.id == 564){
+                            result += '<option value="' + JsonObject['section_heads'][index].rapidx_user_details.id + '">' + JsonObject['section_heads'][index].rapidx_user_details.name + '</option>';
+                        }
+                    }
+                }else{
+                    result = '<option value=""> -- No record found -- </option>';
+                }
+                cboElement.html(result);
+                cboElement.val('564').trigger('change');//static selection
+        },
+        error: function(data, xhr, status){
+            result = '<option value=""> -- Reload Again -- </option>';
+            cboElement.html(result);
+            console.log('Data: ' + data + "\n" + "XHR: " + xhr + "\n" + "Status: " + status);
+        }
+    });
 }
 
 function SubmitAddUser()

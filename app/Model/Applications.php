@@ -2,25 +2,30 @@
 
 namespace App\Model;
 
-use Illuminate\Database\Eloquent\Model;
-use App\Model\RapidXUser;
-use App\Model\RapidXDepartment;
-//use App\Model\AffectedDocuments;
-use App\Model\DccValidations;
-
 use App\Model\AcdcsDocs;
-
+use App\Model\RapidXUser;
+use App\Model\EsignApprover;
+//use App\Model\AffectedDocuments;
 use App\Model\HeadApprovals;
 
 use App\Model\QSValidations;
 
+use App\Model\DccValidations;
+
+use App\Model\RapidXDepartment;
+
 use App\Model\ApplicationRevisions;
+use Illuminate\Database\Eloquent\Model;
 
 
 class Applications extends Model
 {
     protected $table = "applications";
     protected $connection = "mysql";
+
+    public function esign_approver_details(){
+        return $this->hasMany(EsignApprover::class, 'application_id', 'id');
+    }
 
     public function self_details()
     {

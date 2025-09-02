@@ -19,21 +19,31 @@ use App\Model\AccessLevel;
 use App\Model\DccValidations;
 use App\Model\ApplicationRevisions;
 
+
+// use TCPDF;
+use setasign\Fpdi\Tcpdf\Fpdi;
+use Illuminate\Support\Facades\Log;
+
 use Mail;
 
-class ApplicationController extends Controller
-{
-    public function check_existing_aidrc_application(Request $request)
-    {
+class ApplicationController extends Controller{
+
+    public function check_existing_aidrc_application(Request $request){
         session_start();
-
         $rapidx_user_id = $_SESSION['rapidx_user_id'];
+        // return $application = Applications::/*where('application_originator', $rapidx_user_id)->*/where('document_number', $request->document_number)->where('document_revision_number', $request->revision_number)->where('logdel', 0)->whereNotIn('status', [9, 10, 11])->count();
+        // $application = Applications::/*where('application_originator', $rapidx_user_id)->*/where('document_number', $request->document_number)->where('document_revision_number', $request->revision_number)->where('logdel', 0)->whereNotIn('status', [9, 10, 11])
+        $application = Applications::/*where('application_originator', $rapidx_user_id)->*/where('document_number', $request->document_number)
+                        ->where('document_revision_number', $request->revision_number)
+                        ->where('logdel', 0)
+                        ->whereNotIn('status', [6, 7, 8, 9])
+                        ->count();
+                        // ->toSql();
+        return $application;
 
-        $application = Applications::/*where('application_originator', $rapidx_user_id)->*/where('document_number', $request->document_number)->where('document_revision_number', $request->revision_number)->where('logdel', 0)->whereNotIn('status', [9, 10, 11])->count();
-
-        if ($application > 0) {
+        if ($application > 0){ // with result
             return response()->json(['result' => 1]);
-        } else {
+        }else{ // no result
             return response()->json(['result' => 2]);
         }
     }
@@ -1041,19 +1051,19 @@ class ApplicationController extends Controller
         }
     }
 
-    public function load_application_details(Request $request)
-    {
-        $application_details = Applications::with(['dcc_validation_details' => function ($query) {
+    // public function load_application_details(Request $request)
+    // {
+    //     $application_details = Applications::with(['dcc_validation_details' => function ($query) {
 
-            $query->where('logdel', 0)->orderBy('created_at', 'desc');
-        }, 'dcc_validation_details.dcc_validator_details'])->where('id', $request->application_id)->where('logdel', 0)->get();
+    //         $query->where('logdel', 0)->orderBy('created_at', 'desc');
+    //     }, 'dcc_validation_details.dcc_validator_details'])->where('id', $request->application_id)->where('logdel', 0)->get();
 
-        if (count($application_details) > 0) {
-            return response()->json(['result' => 1, 'application_details' => $application_details]);
-        } else {
-            return response()->json(['result' => 2]);
-        }
-    }
+    //     if (count($application_details) > 0) {
+    //         return response()->json(['result' => 1, 'application_details' => $application_details]);
+    //     } else {
+    //         return response()->json(['result' => 2]);
+    //     }
+    // }
 
     public function load_affected_documents_table(Request $request)
     {
@@ -1733,8 +1743,7 @@ class ApplicationController extends Controller
     }
 
 
-    public function load_affected_document_details(Request $request)
-    {
+    public function load_affected_document_details(Request $request){
         $document_details = AffectedDocuments::with(['application_details', 'control_details'])->where('id', $request->affected_doc_id)->where('logdel', 0)->get();
 
         if (count($document_details) > 0) {
@@ -1744,8 +1753,7 @@ class ApplicationController extends Controller
         }
     }
 
-    public function approve_affected_document(Request $request)
-    {
+    public function approve_affected_document(Request $request){
         session_start();
         $qs_validator = $_SESSION['rapidx_user_id'];
         date_default_timezone_set('Asia/Manila');
@@ -1754,19 +1762,14 @@ class ApplicationController extends Controller
 
         if ($request->app_aff_document_status == 6) {
             $validator = Validator::make($request->all(), [
-
                 'app_aff_document_status' => 'required',
-
             ]);
         } else {
             $validator = Validator::make($request->all(), [
-
                 'app_aff_pic' => 'required',
                 'app_aff_revision_due_date' => 'required',
-
             ]);
         }
-
 
         if ($validator->passes()) {
             $rev_no = 0;
@@ -1812,8 +1815,7 @@ class ApplicationController extends Controller
         }
     }
 
-    public function check_application_affected_document_status(Request $request)
-    {
+    public function check_application_affected_document_status(Request $request){
         $total_affected_documents = AffectedDocuments::where('application_id', $request->application_id)->whereIn('approver_type', [2, 3, 4])->whereIn('document_status', [1, 2, 3, 4])->where('logdel', 0)->count();
 
         $total_approved_affected_documents = AffectedDocuments::where('application_id', $request->application_id)->whereIn('approver_type', [2, 3, 4])->where('document_status', 2)->where('logdel', 0)->count();
@@ -1847,8 +1849,8 @@ class ApplicationController extends Controller
         }
     }
 
-    public function submit_dcc_validation(Request $request)
-    {
+    public function submit_dcc_validation(Request $request){
+        // return 'submitted';
         session_start();
         $dcc_validator = $_SESSION['rapidx_user_id'];
         date_default_timezone_set('Asia/Manila');
@@ -1883,8 +1885,7 @@ class ApplicationController extends Controller
         }
     }
 
-    public function submit_minor_revisions(Request $request)
-    {
+    public function submit_minor_revisions(Request $request){
         session_start();
         $originator_id = $_SESSION['rapidx_user_id'];
         date_default_timezone_set('Asia/Manila');
@@ -1959,256 +1960,178 @@ class ApplicationController extends Controller
         }
     }
 
-    public function download_attached_document(Request $request)
-    {
+    public function download_attached_document(Request $request){
         $attachment = Applications::where('id', $request->application_id)->where('logdel', 0)->get();
 
-        $file =  storage_path() . "/app/public/file_attachments/" . $attachment[0]->aidrc_filename;
+        $newFilename = str_replace('modified_', '', $attachment[0]->aidrc_filename);
+        $file =  storage_path()."/app/public/file_attachments/".$newFilename;
+        // return $newFilename;
+        // $file =  storage_path() . "/app/public/file_attachments/" . $attachment[0]->aidrc_filename;
 
         return Response::download($file, $attachment[0]->original_filename);
     }
 
-    public function send_mailer(Request $request)
-    {
-        $application = Applications::with(['qs_inspector_details', 'originator_details', 'section_head_details', 'affected_documents_details' => function ($query2) {
+    // public function download_attached_document123(Request $request){
+    //     $attachment = Applications::with([
+    //         'esign_approver_details',
+    //         'esign_approver_details.user_details'
+    //     ])
+    //     ->where('id', $request->application_id)->where('logdel', 0)->get();
 
+    //     $newFilename = str_replace('modified_', '', $attachment[0]->aidrc_filename);
+    //     $file =  storage_path() . "/app/public/file_attachments/" . $newFilename;
+    //     return $this->attachSignature(storage_path("app/public/file_attachments/{$newFilename}"), $attachment[0]->esign_approver_details);
+    // }
+
+    public function get_application_attachment(Request $request){
+        $attachment = Applications::where('id', $request->application_id)->where('logdel', 0)->get();
+
+        $newFilename = str_replace('modified_', '', $attachment[0]->aidrc_filename);
+        $file =  storage_path()."/app/public/file_attachments/".$newFilename;
+        if (!file_exists($file)) {
+            abort(404, 'File not found.');
+        }
+        return response()->json(['file_name' => $newFilename,'file_path' => asset('/storage/app/public/file_attachments/'.$newFilename)]);
+        // return response()->json(['result' => 1, 'file_path' => $file]);
+    }
+
+    // public function download_attached_document123(Request $request){
+    //     $attachment = Applications::with([
+    //         'esign_approver_details',
+    //         'esign_approver_details.user_details'
+    //     ])
+    //     ->where('id', $request->application_id)->where('logdel', 0)->get();
+
+    //     $newFilename = str_replace('modified_', '', $attachment[0]->aidrc_filename);
+    //     $file =  storage_path() . "/app/public/file_attachments/" . $newFilename;
+    //     return $this->attachSignature(storage_path("app/public/file_attachments/{$newFilename}"), $attachment[0]->esign_approver_details);
+    // }
+
+    public function download_attached_doc_excel(Request $request){
+        $attachment = Applications::where('id', $request->application_id)->where('logdel', 0)->get();
+        $file =  storage_path() . "/app/public/file_attachments/" . $attachment[0]->aidrc_excel_filename;
+
+        return Response::download($file, $attachment[0]->excel_filename);
+    }
+
+    public function send_mailer(Request $request){
+        $application = Applications::with(['esign_approver_details.user_details', 'originator_details', 'affected_documents_details' => function ($query2) {
             $query2->where('logdel', 0);
         }, 'affected_documents_details.approver_details', 'department_details', 'dcc_validation_details' => function ($query) {
-
             $query->where('logdel', 0)->orderBy('created_at', 'desc');
         }, 'dcc_validation_details.dcc_validator_details'])->where('id', $request->application_id)->where('logdel', 0)->get();
 
-
         $data = ['application' => $application];
-
         if (count($application) > 0) {
-            switch ($application[0]->status) {
+            switch ($application[0]->status){
                 case 1: {
-                        /*$send_to = [$application[0]->section_head_details->email];
-
-                     $send_cc = [$application[0]->originator_details->email];
-
-                     if($application[0]->for_group == 1)
-                     {
-                        array_push($send_cc, $application[0]->qs_inspector_details->email);
-                     }
-
-                     Mail::send('mail.aidrc_new_application', $data, function($message) use($send_to, $send_cc){
-                            $message->to($send_to)
-                            ->cc($send_cc)
-                            ->bcc('cdcasuyon@pricon.ph')
-                            ->subject('AIDRC: Application for Approval');
-                        });
-*/
-                        $send_to = [$application[0]->qs_inspector_details->email];
-
-                        $send_cc = [$application[0]->originator_details->email, $application[0]->section_head_details->email];
-
-                        Mail::send('mail.aidrc_qs_inspection', $data, function ($message) use ($send_to, $send_cc) {
-                            $message->to($send_to)
-                                ->cc($send_cc)
-                                ->bcc('cdcasuyon@pricon.ph')
-                                ->subject('AIDRC: Application for QS Validation');
-                        });
-
-
-
-                        break;
-                    }
-                case 2: {
-
-                        /*$send_to = [$application[0]->qs_inspector_details->email];
-
-                     $send_cc = [$application[0]->originator_details->email, $application[0]->section_head_details->email];
-
-                    Mail::send('mail.aidrc_qs_inspection', $data, function($message) use($send_to, $send_cc){
-                            $message->to($send_to)
-                            ->cc($send_cc)
-                            ->bcc('cdcasuyon@pricon.ph')
-                            ->subject('AIDRC: Application for QS Validation');
-                        });*/
-
-                        $send_to = [];
-
-                        if (count($application[0]->affected_documents_details) > 0) {
-                            for ($i = 0; $i < count($application[0]->affected_documents_details); $i++) {
-                                if ($application[0]->affected_documents_details[$i]->approver_type != 1 && $application[0]->affected_documents_details[$i]->document_status == 1) {
-                                    if (!in_array($application[0]->affected_documents_details[$i]->approver_details->email, $send_to)) {
-                                        array_push($send_to, $application[0]->affected_documents_details[$i]->approver_details->email);
-                                    }
-                                }
-                            }
-                        }
-
-                        //return $application[0];
-                        //return $send_to;
-
-                        $send_cc = [$application[0]->originator_details->email, $application[0]->qs_inspector_details->email];
-
-                        Mail::send('mail.aidrc_checkpoint_approval', $data, function ($message) use ($send_to, $send_cc) {
-                            $message->to($send_to)
-                                ->cc($send_cc)
-                                ->bcc('cdcasuyon@pricon.ph')
-                                ->subject('AIDRC: Application Checkpoint for Approval');
-                        });
-
-                        break;
-                    }
-                case 3: {
-
-                        /* $send_to = [];
-
-                    if(count($application[0]->affected_documents_details) > 0)
-                    {
-                        for($i = 0; $i < count($application[0]->affected_documents_details); $i++)
-                        {
-                            if($application[0]->affected_documents_details[$i]->approver_type != 1 && $application[0]->affected_documents_details[$i]->document_status == 1)
-                            {   
-                                if(!in_array($application[0]->affected_documents_details[$i]->approver_details->email, $send_to))
-                                {
-                                     array_push($send_to, $application[0]->affected_documents_details[$i]->approver_details->email);
-                                }
-                            }
-                        }
-                    }
-
-                    //return $application[0];
-                    //return $send_to;
-
-                    $send_cc = [$application[0]->originator_details->email, $application[0]->qs_inspector_details->email];
-
-                    Mail::send('mail.aidrc_checkpoint_approval', $data, function($message) use($send_to, $send_cc){
-                            $message->to($send_to)
-                            ->cc($send_cc)
-                            ->bcc('cdcasuyon@pricon.ph')
-                            ->subject('AIDRC: Application Checkpoint for Approval');
-                        });*/
-
-                        $send_to = [$application[0]->section_head_details->email];
-
-                        $send_cc = [$application[0]->originator_details->email];
-
-                        if ($application[0]->for_group == 1) {
-                            array_push($send_cc, $application[0]->qs_inspector_details->email);
-                        }
-
-                        Mail::send('mail.aidrc_new_application', $data, function ($message) use ($send_to, $send_cc) {
-                            $message->to($send_to)
-                                ->cc($send_cc)
-                                ->bcc('cdcasuyon@pricon.ph')
-                                ->subject('AIDRC: Application for Approval');
-                        });
-
-
-                        break;
-                    }
-                case 4: {
-                        //$send_to = 'cdcasuyon@pricon.ph';
-                        $send_to = ['eeespineli@pricon.ph', 'dmmarmol@pricon.ph', 'mdalcaraz@pricon.ph'];
+                        $send_to = [$application[0]->originator_details->email];
+                        // $send_cc = [$application[0]->section_head_details->email];
 
                         Mail::send('mail.aidrc_dcc_validation', $data, function ($message) use ($send_to) {
                             $message->to($send_to)
                                 ->bcc('cdcasuyon@pricon.ph')
-                                ->subject('AIDRC: DCC Validation');
+                                ->subject('AIDRCV2: DCC Validation');
                         });
-
                         break;
                     }
-                case 5: {
+                case 2: {
                         $send_to = [$application[0]->originator_details->email];
-
-                        $send_cc = [$application[0]->section_head_details->email, $application[0]->dcc_validation_details[0]->dcc_validator_details->email];
-
-                        if ($application[0]->for_group == 1) {
-                            array_push($send_cc, $application[0]->qs_inspector_details->email);
-                        }
+                        $send_cc = [$application[0]->dcc_validation_details[0]->dcc_validator_details->email];
 
                         Mail::send('mail.aidrc_minor_revisions', $data, function ($message) use ($send_to, $send_cc) {
                             $message->to($send_to)
                                 ->cc($send_cc)
                                 ->bcc('cdcasuyon@pricon.ph')
-                                ->subject('AIDRC: Application for Minor Revisions');
+                                ->subject('AIDRCV2: Application for Minor Revisions');
                         });
-
                         break;
                     }
-                case 6: {
+                case 3: {
                         $send_to = [$application[0]->originator_details->email];
-
-                        $send_cc = [$application[0]->section_head_details->email, $application[0]->dcc_validation_details[0]->dcc_validator_details->email];
-
-                        if ($application[0]->for_group == 1) {
-                            array_push($send_cc, $application[0]->qs_inspector_details->email);
-                        }
-
-                        // $send_to = 'cdcasuyon@pricon.ph';
+                        $send_cc = [$application[0]->dcc_validation_details[0]->dcc_validator_details->email];
 
                         Mail::send('mail.aidrc_major_revisions', $data, function ($message) use ($send_to) {
                             $message->to($send_to)
                                 ->to($send_cc)
                                 ->bcc('cdcasuyon@pricon.ph')
-                                ->subject('AIDRC: Application for Major Revisions');
+                                ->subject('AIDRCV2: Application for Major Revisions');
+                        });
+
+                        break;
+                    }
+                case 4: {
+                        // Find the minimum approval_order among pending approvers
+                        $pendingApprovers = collect($application[0]->esign_approver_details)
+                                            ->filter(function ($item){
+                                                return $item->status == 0 && is_null($item->deleted_at);
+                                            });
+
+                        // get the approver with the smallest approval_order
+                        $currentApprover = $pendingApprovers->sortBy('approval_order')->first();
+
+                        $send_to = [$currentApprover->user_details->email]; //current approver only
+                        $send_cc = [$application[0]->originator_details->email];
+
+                        Mail::send('mail.aidrc_new_application', $data, function ($message) use ($send_to, $send_cc) {
+                            $message->to($send_to)
+                                ->cc($send_cc)
+                                ->bcc('cdcasuyon@pricon.ph')
+                                ->subject('AIDRCV2: Application for Approval');
+                        });
+                        break;
+                    }
+                case 5: {
+                        $send_to = [$application[0]->originator_details->email];
+                        // $send_cc = [$application[0]->section_head_details->email];
+
+                        Mail::send('mail.aidrc_disapproved', $data, function ($message) use ($send_to, $send_cc) {
+                            $message->to($send_to)
+                                // ->cc($send_cc)
+                                ->bcc('cdcasuyon@pricon.ph')
+                                ->subject('AIDRCV2: Application Disapproved');
+                        });
+                        break;
+                    }
+                case 6: {
+                        $send_to = [$application[0]->originator_details->email];
+                        // $send_cc = [$application[0]->section_head_details->email];
+
+                        Mail::send('mail.aidrc_cancelled', $data, function ($message) use ($send_to) {
+                            $message->to($send_to)
+                                // ->cc($send_cc)
+                                ->bcc('cdcasuyon@pricon.ph')
+                                ->subject('AIDRCV2: Application Cancelled');
                         });
 
                         break;
                     }
                 case 7: {
                         $send_to = [$application[0]->originator_details->email];
-
-                        $send_cc = [$application[0]->section_head_details->email, $application[0]->dcc_validation_details[0]->dcc_validator_details->email];
-
-                        if ($application[0]->for_group == 1) {
-                            array_push($send_cc, $application[0]->qs_inspector_details->email);
-                        }
-
-
-                        /* return $send_to;
-                    $send_to = 'cdcasuyon@pricon.ph';*/
+                        // $send_cc = [$application[0]->section_head_details->email, $application[0]->dcc_validation_details[0]->dcc_validator_details->email];
 
                         Mail::send('mail.aidrc_validated', $data, function ($message) use ($send_to, $send_cc) {
                             $message->to($send_to)
                                 /*->to($send_cc)*/
                                 ->bcc('cdcasuyon@pricon.ph')
-                                ->subject('AIDRC: Application Validated!');
+                                ->subject('AIDRCV2: Application Validated!, For Control');
                         });
-
                         break;
                     }
                 case 8: {
-                        //DCC APPROVED, FOR CONTROL
-                        $result = "DOCUMENT CONTROLLED";
+                        $send_to = [$application[0]->originator_details->email];
+                        // $send_cc = [$application[0]->section_head_details->email, $application[0]->dcc_validation_details[0]->dcc_validator_details->email];
 
+                        Mail::send('mail.aidrc_validated', $data, function ($message) use ($send_to, $send_cc) {
+                            $message->to($send_to)
+                                /*->to($send_cc)*/
+                                ->bcc('cdcasuyon@pricon.ph')
+                                ->subject('AIDRCV2: Application Validated!, For Control');
+                        });
                         break;
                     }
                 case 9: {
-                        $send_to = [$application[0]->originator_details->email];
-                        $send_cc = [$application[0]->section_head_details->email];
-
-                        Mail::send('mail.aidrc_disapproved', $data, function ($message) use ($send_to, $send_cc) {
-                            $message->to($send_to)
-                                ->cc($send_cc)
-                                ->bcc('cdcasuyon@pricon.ph')
-                                ->subject('AIDRC: Application Disapproved');
-                        });
-
-                        break;
-                    }
-                case 10: {
-                        $send_to = [$application[0]->originator_details->email];
-
-                        $send_cc = [$application[0]->section_head_details->email];
-
-                        if ($application[0]->for_group == 1) {
-                            array_push($send_cc, $application[0]->qs_inspector_details->email);
-                        }
-
-                        Mail::send('mail.aidrc_cancelled', $data, function ($message) use ($send_to) {
-                            $message->to($send_to)
-                                ->cc($send_cc)
-                                ->bcc('cdcasuyon@pricon.ph')
-                                ->subject('AIDRC: Application Cancelled');
-                        });
-
+                        $result = "DOCUMENT CONTROLLED";
                         break;
                     }
                 default: {
@@ -2224,247 +2147,127 @@ class ApplicationController extends Controller
         }
     }
 
-    public function send_manual_mailer(Request $request)
-    {
-        $application = Applications::with(['qs_inspector_details', 'originator_details', 'section_head_details', 'affected_documents_details' => function ($query2) {
+    public function send_manual_mailer(Request $request){
+
+        $application = Applications::with(['esign_approver_details.user_details', 'originator_details', 'section_head_details', 'affected_documents_details' => function ($query2) {
 
             $query2->where('logdel', 0);
         }, 'affected_documents_details.approver_details', 'department_details', 'dcc_validation_details' => function ($query) {
 
             $query->where('logdel', 0)->orderBy('created_at', 'desc');
-        }, 'dcc_validation_details.dcc_validator_details'])->where('aidrc_control_number', $request->aidrc_control_number)->where('logdel', 0)->get();
-
+        }, 'dcc_validation_details.dcc_validator_details'])->where('id', $request->application_id)->where('logdel', 0)->get();
 
         $data = ['application' => $application];
-
         if (count($application) > 0) {
             switch ($application[0]->status) {
                 case 1: {
-                        /*$send_to = [$application[0]->section_head_details->email];
-
-                     $send_cc = [$application[0]->originator_details->email];
-
-                     if($application[0]->for_group == 1)
-                     {
-                        array_push($send_cc, $application[0]->qs_inspector_details->email);
-                     }
-
-                     Mail::send('mail.aidrc_new_application', $data, function($message) use($send_to, $send_cc){
-                            $message->to($send_to)
-                            ->cc($send_cc)
-                            ->bcc('cdcasuyon@pricon.ph')
-                            ->subject('AIDRC: Application for Approval');
-                        });
-*/
-                        $send_to = [$application[0]->qs_inspector_details->email];
-
-                        $send_cc = [$application[0]->originator_details->email, $application[0]->section_head_details->email];
-
-                        Mail::send('mail.aidrc_qs_inspection', $data, function ($message) use ($send_to, $send_cc) {
-                            $message->to($send_to)
-                                ->cc($send_cc)
-                                ->bcc('cdcasuyon@pricon.ph')
-                                ->subject('AIDRC: Application for QS Validation');
-                        });
-
-
-
-                        break;
-                    }
-                case 2: {
-
-                        /*$send_to = [$application[0]->qs_inspector_details->email];
-
-                     $send_cc = [$application[0]->originator_details->email, $application[0]->section_head_details->email];
-
-                    Mail::send('mail.aidrc_qs_inspection', $data, function($message) use($send_to, $send_cc){
-                            $message->to($send_to)
-                            ->cc($send_cc)
-                            ->bcc('cdcasuyon@pricon.ph')
-                            ->subject('AIDRC: Application for QS Validation');
-                        });*/
-
-                        $send_to = [];
-
-                        if (count($application[0]->affected_documents_details) > 0) {
-                            for ($i = 0; $i < count($application[0]->affected_documents_details); $i++) {
-                                if ($application[0]->affected_documents_details[$i]->approver_type != 1 && $application[0]->affected_documents_details[$i]->document_status == 1) {
-                                    if (!in_array($application[0]->affected_documents_details[$i]->approver_details->email, $send_to)) {
-                                        array_push($send_to, $application[0]->affected_documents_details[$i]->approver_details->email);
-                                    }
-                                }
-                            }
-                        }
-
-                        //return $application[0];
-                        //return $send_to;
-
-                        $send_cc = [$application[0]->originator_details->email, $application[0]->qs_inspector_details->email];
-
-                        Mail::send('mail.aidrc_checkpoint_approval', $data, function ($message) use ($send_to, $send_cc) {
-                            $message->to($send_to)
-                                ->cc($send_cc)
-                                ->bcc('cdcasuyon@pricon.ph')
-                                ->subject('AIDRC: Application Checkpoint for Approval');
-                        });
-
-                        break;
-                    }
-                case 3: {
-
-                        /* $send_to = [];
-
-                    if(count($application[0]->affected_documents_details) > 0)
-                    {
-                        for($i = 0; $i < count($application[0]->affected_documents_details); $i++)
-                        {
-                            if($application[0]->affected_documents_details[$i]->approver_type != 1 && $application[0]->affected_documents_details[$i]->document_status == 1)
-                            {   
-                                if(!in_array($application[0]->affected_documents_details[$i]->approver_details->email, $send_to))
-                                {
-                                     array_push($send_to, $application[0]->affected_documents_details[$i]->approver_details->email);
-                                }
-                            }
-                        }
-                    }
-
-                    //return $application[0];
-                    //return $send_to;
-
-                    $send_cc = [$application[0]->originator_details->email, $application[0]->qs_inspector_details->email];
-
-                    Mail::send('mail.aidrc_checkpoint_approval', $data, function($message) use($send_to, $send_cc){
-                            $message->to($send_to)
-                            ->cc($send_cc)
-                            ->bcc('cdcasuyon@pricon.ph')
-                            ->subject('AIDRC: Application Checkpoint for Approval');
-                        });*/
-
-                        $send_to = [$application[0]->section_head_details->email];
-
-                        $send_cc = [$application[0]->originator_details->email];
-
-                        if ($application[0]->for_group == 1) {
-                            array_push($send_cc, $application[0]->qs_inspector_details->email);
-                        }
-
-                        Mail::send('mail.aidrc_new_application', $data, function ($message) use ($send_to, $send_cc) {
-                            $message->to($send_to)
-                                ->cc($send_cc)
-                                ->bcc('cdcasuyon@pricon.ph')
-                                ->subject('AIDRC: Application for Approval');
-                        });
-
-
-                        break;
-                    }
-                case 4: {
-                        //$send_to = 'cdcasuyon@pricon.ph';
-                        $send_to = ['eeespineli@pricon.ph', 'dmmarmol@pricon.ph', 'mdalcaraz@pricon.ph'];
+                        $send_to = [$application[0]->originator_details->email];
+                        // $send_cc = [$application[0]->section_head_details->email];
 
                         Mail::send('mail.aidrc_dcc_validation', $data, function ($message) use ($send_to) {
                             $message->to($send_to)
                                 ->bcc('cdcasuyon@pricon.ph')
-                                ->subject('AIDRC: DCC Validation');
+                                ->subject('AIDRCV2: DCC Validation');
                         });
-
                         break;
                     }
-                case 5: {
+                case 2: {
                         $send_to = [$application[0]->originator_details->email];
-
-                        $send_cc = [$application[0]->section_head_details->email, $application[0]->dcc_validation_details[0]->dcc_validator_details->email];
-
-                        if ($application[0]->for_group == 1) {
-                            array_push($send_cc, $application[0]->qs_inspector_details->email);
-                        }
+                        $send_cc = [$application[0]->dcc_validation_details[0]->dcc_validator_details->email];
 
                         Mail::send('mail.aidrc_minor_revisions', $data, function ($message) use ($send_to, $send_cc) {
                             $message->to($send_to)
                                 ->cc($send_cc)
                                 ->bcc('cdcasuyon@pricon.ph')
-                                ->subject('AIDRC: Application for Minor Revisions');
+                                ->subject('AIDRCV2: Application for Minor Revisions');
                         });
-
                         break;
                     }
-                case 6: {
+                case 3: {
                         $send_to = [$application[0]->originator_details->email];
-
-                        $send_cc = [$application[0]->section_head_details->email, $application[0]->dcc_validation_details[0]->dcc_validator_details->email];
-
-                        if ($application[0]->for_group == 1) {
-                            array_push($send_cc, $application[0]->qs_inspector_details->email);
-                        }
-
-                        // $send_to = 'cdcasuyon@pricon.ph';
+                        $send_cc = [$application[0]->dcc_validation_details[0]->dcc_validator_details->email];
 
                         Mail::send('mail.aidrc_major_revisions', $data, function ($message) use ($send_to) {
                             $message->to($send_to)
                                 ->to($send_cc)
                                 ->bcc('cdcasuyon@pricon.ph')
-                                ->subject('AIDRC: Application for Major Revisions');
+                                ->subject('AIDRCV2: Application for Major Revisions');
+                        });
+
+                        break;
+                    }
+                case 4: {
+                        // Find the minimum approval_order among pending approvers
+                        $pendingApprovers = collect($application->esign_approver_details)
+                                            ->filter(function ($item){
+                                                return $item->status == 0 && is_null($item->deleted_at);
+                                            });
+
+                        // get the approver with the smallest approval_order
+                        $currentApprover = $pendingApprovers->sortBy('approval_order')->first();
+
+                        $send_to = [$currentApprover->user_details->email]; //current approver only
+                        $send_cc = [$application[0]->originator_details->email];
+
+                        Mail::send('mail.aidrc_new_application', $data, function ($message) use ($send_to, $send_cc) {
+                            $message->to($send_to)
+                                ->cc($send_cc)
+                                ->bcc('cdcasuyon@pricon.ph')
+                                ->subject('AIDRCV2: Application for Approval');
+                        });
+                        break;
+                    }
+                case 5: {
+                        $send_to = [$application[0]->originator_details->email];
+                        // $send_cc = [$application[0]->section_head_details->email];
+
+                        Mail::send('mail.aidrc_disapproved', $data, function ($message) use ($send_to, $send_cc) {
+                            $message->to($send_to)
+                                // ->cc($send_cc)
+                                ->bcc('cdcasuyon@pricon.ph')
+                                ->subject('AIDRCV2: Application Disapproved');
+                        });
+                        break;
+                    }
+                case 6: {
+                        $send_to = [$application[0]->originator_details->email];
+                        // $send_cc = [$application[0]->section_head_details->email];
+
+                        Mail::send('mail.aidrc_cancelled', $data, function ($message) use ($send_to) {
+                            $message->to($send_to)
+                                // ->cc($send_cc)
+                                ->bcc('cdcasuyon@pricon.ph')
+                                ->subject('AIDRCV2: Application Cancelled');
                         });
 
                         break;
                     }
                 case 7: {
                         $send_to = [$application[0]->originator_details->email];
-
-                        $send_cc = [$application[0]->section_head_details->email, $application[0]->dcc_validation_details[0]->dcc_validator_details->email];
-
-                        if ($application[0]->for_group == 1) {
-                            array_push($send_cc, $application[0]->qs_inspector_details->email);
-                        }
-
-
-                        /* return $send_to;
-                    $send_to = 'cdcasuyon@pricon.ph';*/
+                        // $send_cc = [$application[0]->section_head_details->email, $application[0]->dcc_validation_details[0]->dcc_validator_details->email];
 
                         Mail::send('mail.aidrc_validated', $data, function ($message) use ($send_to, $send_cc) {
                             $message->to($send_to)
                                 /*->to($send_cc)*/
                                 ->bcc('cdcasuyon@pricon.ph')
-                                ->subject('AIDRC: Application Validated!');
+                                ->subject('AIDRCV2: Application Validated!, For Control');
                         });
-
                         break;
                     }
                 case 8: {
-                        //DCC APPROVED, FOR CONTROL
-                        $result = "DOCUMENT CONTROLLED";
+                        $send_to = [$application[0]->originator_details->email];
+                        // $send_cc = [$application[0]->section_head_details->email, $application[0]->dcc_validation_details[0]->dcc_validator_details->email];
 
+                        Mail::send('mail.aidrc_validated', $data, function ($message) use ($send_to, $send_cc) {
+                            $message->to($send_to)
+                                /*->to($send_cc)*/
+                                ->bcc('cdcasuyon@pricon.ph')
+                                ->subject('AIDRCV2: Application Validated!, For Control');
+                        });
                         break;
                     }
                 case 9: {
-                        $send_to = [$application[0]->originator_details->email];
-                        $send_cc = [$application[0]->section_head_details->email];
-
-                        Mail::send('mail.aidrc_disapproved', $data, function ($message) use ($send_to, $send_cc) {
-                            $message->to($send_to)
-                                ->cc($send_cc)
-                                ->bcc('cdcasuyon@pricon.ph')
-                                ->subject('AIDRC: Application Disapproved');
-                        });
-
-                        break;
-                    }
-                case 10: {
-                        $send_to = [$application[0]->originator_details->email];
-
-                        $send_cc = [$application[0]->section_head_details->email];
-
-                        if ($application[0]->for_group == 1) {
-                            array_push($send_cc, $application[0]->qs_inspector_details->email);
-                        }
-
-                        Mail::send('mail.aidrc_cancelled', $data, function ($message) use ($send_to) {
-                            $message->to($send_to)
-                                ->cc($send_cc)
-                                ->bcc('cdcasuyon@pricon.ph')
-                                ->subject('AIDRC: Application Cancelled');
-                        });
-
+                        $result = "DOCUMENT CONTROLLED";
                         break;
                     }
                 default: {
@@ -2615,25 +2418,18 @@ class ApplicationController extends Controller
         }
     }
 
-    public function submit_edit_application(Request $request)
-    {
+    public function submit_edit_application(Request $request){
         session_start();
-
         date_default_timezone_set('Asia/Manila');
-
         //originator/creator
         $originator_id = $_SESSION['rapidx_user_id'];
-
-
         $qs_inspector = null;
-
         if (isset($request->edit_qs_inspector)) {
             $qs_inspector = $request->edit_qs_inspector;
         }
 
         try {
             if (isset($request->edit_attachment)) {
-                //attachment filename
                 $generated_filename = "aidrc_attachment_" . date('YmdHis');
                 $original_filename = $request->file('edit_attachment')->getClientOriginalName();
                 $file_extension = $request->file('edit_attachment')->getClientOriginalExtension();
@@ -2642,16 +2438,12 @@ class ApplicationController extends Controller
                 Storage::putFileAs('public/file_attachments', $request->edit_attachment, $aidrc_filename);
 
                 Applications::where('id', $request->edit_hidden_application_id)->update([
-
                     'aidrc_filename' => $aidrc_filename,
                     'original_filename' => $original_filename,
-
                 ]);
             }
 
-
             Applications::where('id', $request->edit_hidden_application_id)->update([
-
                 'document_number' => $request->edit_doc_no,
                 'document_name' => $request->edit_doc_title,
                 'document_revision_number' => $request->edit_doc_rev_no,
@@ -2676,6 +2468,54 @@ class ApplicationController extends Controller
             // throw $e;
             return response()->json(['result' => $e]);
         }
+    }
+
+    function attachSignature($attachment, $approvers){
+        // return $approvers;
+        $pdf = new Fpdi('P', 'mm', 'A4'); // mm unit
+
+        $pageCount = $pdf->setSourceFile($attachment);
+        // return $pageCount;
+        for ($i = 1; $i <= $pageCount; $i++) {
+            $templateId = $pdf->importPage($i);
+            $size = $pdf->getTemplateSize($templateId);
+            if($size['width'] > $size['height']){
+                $orientation 	= 'L';
+                /* A4 size is width 210 x height 297 mm */
+                /* A3 size is width 297 x height 420 mm */
+                /* I've used 280 to validate if A3 just to be safe. However, do not exceed 297mm */
+                /* Check on landscape only since PMI does not use A3 on Portrait */
+                if($size['width'] > 297){
+                    $page_size 	= 'A3';
+                }
+            }
+            // Add a new page and use the imported PDF as template
+            $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+            $pdf->useTemplate($templateId);
+
+            foreach($approvers as $approver) {
+                if($approver->page_no == $i) {
+
+                    // Set coordinates where the signature will be placed (e.g. x=120, y=250)
+                    $exploded_ordinates = explode('|', $approver->coordinates);
+                    $x = (float) $exploded_ordinates[0]  * $size['width']; // Convert to mm;
+                    $y = (float) $exploded_ordinates[1] * $size['height']; // Convert to mm;
+
+                    // Optional: resize signaturesignaturePath
+                    $signatureWidth = 30;
+                    $signatureHeight = 20;
+
+                    // Path to your signature image (JPG or PNG)
+                    $imagePath = '../RapidX_E-Signature/'.$approver->user_details->employee_number.'.png';
+                    // Insert the image
+                    $pdf->Image($imagePath, $x-10, $y+5, $signatureWidth, $signatureHeight, 'PNG');
+
+                    // Log::info("PDF Page Size (mm): Width = {$size['width']}, Height = {$size['height']}");
+                    // Log::info("Placing signature at: X = $x mm, Y = $y mm");
+                }
+            }
+        }
+        $pdf->Output($attachment, 'I'); // Stream file
     }
 
 

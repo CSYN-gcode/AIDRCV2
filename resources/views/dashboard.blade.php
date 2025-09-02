@@ -148,6 +148,7 @@ $layout = 'layouts.user_layout';
                                                 style="width: 100%; font-size: 85%;">
                                                 <thead>
                                                     <tr>
+                                                        <th>Action</th>
                                                         <th>Control Number</th>
                                                         <th>Status</th>
                                                         <th>Application Date/Time</th>
@@ -158,7 +159,6 @@ $layout = 'layouts.user_layout';
                                                         <th>Rev #</th>
                                                         <th>Uploaded File</th>
                                                         <th>Application Approvers</th>
-                                                        <th>Action</th>
                                                     </tr>
                                                 </thead>
                                             </table>
@@ -2877,25 +2877,6 @@ $layout = 'layouts.user_layout';
 @section('js_content')
     <script type="text/javascript">
         let arrayAffectedDocuments = [];
-
-        toastr.options = {
-            "closeButton": false,
-            "debug": false,
-            "newestOnTop": true,
-            "progressBar": true,
-            "positionClass": "toast-top-right",
-            "preventDuplicates": false,
-            "onclick": null,
-            "showDuration": "300",
-            "hideDuration": "3000",
-            "timeOut": "3000",
-            "extendedTimeOut": "3000",
-            "showEasing": "swing",
-            "hideEasing": "linear",
-            "showMethod": "fadeIn",
-            "hideMethod": "fadeOut",
-        };
-
         $(document).ready(function() {
             bsCustomFileInput.init();
 
@@ -2903,96 +2884,53 @@ $layout = 'layouts.user_layout';
             LoadRapidXDepartmentList($('.sel-rapidx-department-list'));
             LoadRapidXDepartmentList($('.sel-rapidx-department-list-2'));
             LoadRapidXUserList($('.sel-rapidx-user-list'));
-
             LoadOriginatorList($('.sel-originator-list'));
-
             LoadSectionHeadList($('.sel-rapidx-section-heads'));
             LoadProdHeadList($('.sel-rapidx-prod-head'));
-
             LoadQcHeadList($('.sel-rapidx-qc-head'));
-
             LoadEngHeadList($('.sel-rapidx-eng-head'));
-
-
-            /*     $('.sel-rapidx-department-list').select2({
-                    theme: "bootstrap4",
-
-                });
-            $('.sel-rapidx-user-list').select2({
-                    theme: "bootstrap4"
-                });*/
 
             $('.sel-filter-status').select2({
                 theme: "bootstrap4",
-
             });
 
             $('.sel-originator-list').select2({
                 theme: "bootstrap4",
-
             });
 
             $('.sel-rapidx-department-list-2').select2({
                 theme: "bootstrap4",
-
             });
 
             dt_applications = $('#tbl_applications').DataTable({
-
                 "processing": true,
                 "serverSide": true,
                 "ajax": {
                     url: "load_acdcs_applications_table_test",
+                    // url: "load_acdcs_applications_table",
                     data: function(param) {
-
                         param.check_section_department = $('#hidden_check_section_dept').val();
                         param.check_originator = $('#hidden_check_originator').val();
                         param.originator = $('#filter_originator').val();
                         param.section_department = $('#filter_department').val();
                         param.check_status = $('#hidden_check_status').val();
                         param.status = $('#filter_status').val();
-
                     }
                 },
-
-                "columns": [{
-                        "data": "control_number"
-                    },
-                    {
-                        "data": "status"
-                    },
-                    {
-                        "data": "application_datetime"
-                    },
-                    {
-                        "data": "originator"
-                    },
-                    {
-                        "data": "section_dept"
-                    },
-                    {
-                        "data": "doc_no"
-                    },
-                    {
-                        "data": "doc_title"
-                    },
-                    {
-                        "data": "rev_no"
-                    },
-                    {
-                        "data": "uploaded_file"
-                    },
-                    {
-                        "data": "application_approvers"
-                    },
-                    {
-                        "data": "action"
-                    },
-
+                "columns": [
+                    { "data": "action" },
+                    { "data": "control_number" },
+                    { "data": "status" },
+                    { "data": "application_datetime" },
+                    { "data": "originator" },
+                    { "data": "section_dept" },
+                    { "data": "doc_no" },
+                    { "data": "doc_title" },
+                    { "data": "rev_no" },
+                    { "data": "uploaded_file" },
+                    { "data": "application_approvers" },
                 ],
-
                 "order": [2, 'desc']
-
             });
 
             dt_affected_documents = $('#tbl_affected_documents').DataTable({
@@ -3009,26 +2947,13 @@ $layout = 'layouts.user_layout';
                         param.array_documents = arrayAffectedDocuments;
                     }
                 },
-
-                "columns": [{
-                        "data": "doc_no"
-                    },
-                    {
-                        "data": "doc_title"
-                    },
-                    {
-                        "data": "rev_no"
-                    },
-                    {
-                        "data": "person_in_charge"
-                    },
-                    {
-                        "data": "revision_due_date"
-                    },
-                    {
-                        "data": "action"
-                    },
-
+                "columns": [
+                    { "data": "doc_no" },
+                    { "data": "doc_title" },
+                    { "data": "rev_no" },
+                    { "data": "person_in_charge" },
+                    { "data": "revision_due_date" },
+                    { "data": "action" },
                 ],
             });
 
@@ -3043,20 +2968,11 @@ $layout = 'layouts.user_layout';
                         param.document_wildcard = $('#document_wildcard').val();
                     }
                 },
-
-                "columns": [{
-                        "data": "doc_no"
-                    },
-                    {
-                        "data": "doc_title"
-                    },
-                    {
-                        "data": "rev_no"
-                    },
-                    {
-                        "data": "action"
-                    },
-
+                "columns": [
+                    { "data": "doc_no" },
+                    { "data": "doc_title" },
+                    { "data": "rev_no" },
+                    { "data": "action" },
                 ],
             });
 
@@ -3075,30 +2991,15 @@ $layout = 'layouts.user_layout';
                     }
                 },
 
-                "columns": [{
-                        "data": "checkpoint_type"
-                    },
-                    {
-                        "data": "doc_no"
-                    },
-                    {
-                        "data": "doc_title"
-                    },
-                    {
-                        "data": "rev_no"
-                    },
-                    {
-                        "data": "person_in_charge"
-                    },
-                    {
-                        "data": "revision_due_date"
-                    },
-                    {
-                        "data": "action"
-                    },
-
+                "columns": [
+                    { "data": "checkpoint_type" },
+                    { "data": "doc_no" },
+                    { "data": "doc_title" },
+                    { "data": "rev_no" },
+                    { "data": "person_in_charge" },
+                    { "data": "revision_due_date" },
+                    { "data": "action" },
                 ],
-
             });
 
             dt_head_approval_documents = $('#tbl_head_approval_documents').DataTable({
@@ -3116,31 +3017,15 @@ $layout = 'layouts.user_layout';
                         // param.array_documents = [8];
                     }
                 },
-
-                "columns": [{
-                        "data": "checkpoint_type"
-                    },
-                    {
-                        "data": "doc_no"
-                    },
-                    {
-                        "data": "doc_title"
-                    },
-                    {
-                        "data": "rev_no"
-                    },
-                    {
-                        "data": "person_in_charge"
-                    },
-                    {
-                        "data": "revision_due_date"
-                    },
-                    {
-                        "data": "action"
-                    },
-
+                "columns": [
+                    { "data": "checkpoint_type" },
+                    { "data": "doc_no" },
+                    { "data": "doc_title" },
+                    { "data": "rev_no" },
+                    { "data": "person_in_charge" },
+                    { "data": "revision_due_date" },
+                    { "data": "action" },
                 ],
-
             });
 
             dt_dcc_affected_documents = $('#tbl_dcc_affected_documents').DataTable({
@@ -3158,29 +3043,14 @@ $layout = 'layouts.user_layout';
                     }
                 },
 
-                "columns": [{
-                        "data": "checkpoint_type"
-                    },
-                    {
-                        "data": "doc_no"
-                    },
-                    {
-                        "data": "doc_title"
-                    },
-                    {
-                        "data": "rev_no"
-                    },
-                    {
-                        "data": "person_in_charge"
-                    },
-                    {
-                        "data": "revision_due_date"
-                    },
-                    /* { "data" : "action" },*/
-
+                "columns": [
+                    { "data": "checkpoint_type" },
+                    { "data": "doc_no" },
+                    { "data": "doc_title" },
+                    { "data": "rev_no" },
+                    { "data": "person_in_charge" },
+                    { "data": "revision_due_date" },
                 ],
-
-
             });
 
             //VIEW TABLES
@@ -3199,32 +3069,15 @@ $layout = 'layouts.user_layout';
                     }
                 },
 
-                "columns": [{
-                        "data": "checkpoint_type"
-                    },
-                    {
-                        "data": "doc_no"
-                    },
-                    {
-                        "data": "doc_title"
-                    },
-                    {
-                        "data": "rev_no"
-                    },
-                    {
-                        "data": "person_in_charge"
-                    },
-                    {
-                        "data": "revision_due_date"
-                    },
-                    {
-                        "data": "originator_remarks"
-                    },
-                    /* { "data" : "action" },*/
-
+                "columns": [
+                    { "data": "checkpoint_type" },
+                    { "data": "doc_no" },
+                    { "data": "doc_title" },
+                    { "data": "rev_no" },
+                    { "data": "person_in_charge" },
+                    { "data": "revision_due_date" },
+                    { "data": "originator_remarks" },
                 ],
-
-
             });
 
             dt_view_dcc_validations = $('#tbl_view_dcc_validations').DataTable({
@@ -3242,31 +3095,15 @@ $layout = 'layouts.user_layout';
 
                     }
                 },
-
-                "columns": [{
-                        "data": "validation_datetime"
-                    },
-                    {
-                        "data": "dcc_in_charge"
-                    },
-                    {
-                        "data": "judgement"
-                    },
-                    {
-                        "data": "checkpoint_similar"
-                    },
-                    {
-                        "data": "checkpoint_alignment"
-                    },
-                    {
-                        "data": "checkpoint_standard"
-                    },
-                    {
-                        "data": "dcc_remarks"
-                    },
-
+                "columns": [
+                    { "data": "validation_datetime" },
+                    { "data": "dcc_in_charge" },
+                    { "data": "judgement" },
+                    { "data": "checkpoint_similar" },
+                    { "data": "checkpoint_alignment" },
+                    { "data": "checkpoint_standard" },
+                    { "data": "dcc_remarks" },
                 ],
-
             });
 
             dt_view_approvals = $('#tbl_view_approvals').DataTable({
@@ -3284,26 +3121,13 @@ $layout = 'layouts.user_layout';
 
                     }
                 },
-
-                "columns": [{
-                        "data": "approval_datetime"
-                    },
-                    {
-                        "data": "approver"
-                    },
-                    {
-                        "data": "approving_as"
-                    },
-                    {
-                        "data": "judgement"
-                    },
-                    {
-                        "data": "approval_remarks"
-                    },
-
-
+                "columns": [
+                    { "data": "approval_datetime" },
+                    { "data": "approver" },
+                    { "data": "approving_as" },
+                    { "data": "judgement" },
+                    { "data": "approval_remarks" },
                 ],
-
             });
 
             dt_view_qs_validations = $('#tbl_view_qs_validations').DataTable({
@@ -3334,53 +3158,18 @@ $layout = 'layouts.user_layout';
                     {
                         "data": "validation_remarks"
                     },
-
-
                 ],
-
             });
-
-            /* dt_view_revisions = $('#tbl_view_revisions').DataTable({
-
-                 "paging":   false,
-                 "info":     false,
-                 "searching": false,
-                 "ordering": false,
-                  "processing" : true,
-                 "serverSide" : true,
-                 "ajax" : {
-                   url: "load_new_document_revisions_table",
-                   data: function (param){
-                       param.application_id = $("#view_application_id").val();
-
-                   }
-                 },
-
-                 "columns":[
-                   { "data" : "revision_datetime" },
-                   { "data" : "current_status" },
-                   { "data" : "attachment" },
-                   { "data" : "originator_remarks" },
-                   { "data" : "doc_no" },
-                   { "data" : "doc_title" },
-                   { "data" : "rev_no" },
-
-                 ],
-
-             });*/
-
         });
 
         $('#add_for_group').change(function() {
-
             if ($('#add_for_group').val() == 1) {
                 $('.operation-approvers').removeClass('d-none');
                 $('.sg-approvers').addClass('d-none');
-            } else {
+            }else{
                 $('.sg-approvers').removeClass('d-none');
                 $('.operation-approvers').addClass('d-none');
             }
-
         });
 
         $('#modalAddApplication').on('hidden.bs.modal', function() {
@@ -3439,9 +3228,6 @@ $layout = 'layouts.user_layout';
             }
         });
 
-
-
-        //add document details ------
         $(document).on('click', '.btn-add-document-details', function() {
             let active_doc_id = $(this).attr('active-doc-id');
             let addition_type = $(this).attr('addition-type');
@@ -3449,16 +3235,14 @@ $layout = 'layouts.user_layout';
             LoadAddDocumentDetails(active_doc_id, addition_type);
         });
 
-        $('#btnSubmitApplication').click(function() {
+        // $('#btnSubmitApplication').click(function() {
+        //     $('#formAddApplication').submit();
+        // });
 
-            $('#formAddApplication').submit();
-
-        });
-
-        $('#formAddApplication').submit(function(e) {
-            e.preventDefault();
-            SubmitNewApplication(arrayAffectedDocuments);
-        });
+        // $('#formAddApplication').submit(function(e) {
+        //     e.preventDefault();
+        //     SubmitNewApplication(arrayAffectedDocuments);
+        // });
 
         //QS VALIDATION
         $(document).on('click', '.btn-qs-validation', function() {

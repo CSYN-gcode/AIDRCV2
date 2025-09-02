@@ -11,18 +11,13 @@ function CheckExistingAidrcApplicationNew(document_title)
 			document_title: document_title,
 		},
 		dataType: "json",
-		beforeSend: function()
-		{
+		beforeSend: function(){
 
 		},
-		success: function(JsonObject)
-		{
-			if(JsonObject['result'] == 1)
-			{
+		success: function(JsonObject){
+			if(JsonObject['result'] == 1){
 				toastr.error("There's already an existing application for the document!");
-			}
-			else
-			{	
+			}else{
 				$('#formAddApplication').submit();
 				console.log('no same title');
 			}
@@ -41,7 +36,7 @@ function LoadAcdcsLayout()
 		method: "get",
 		data:
 		{
-			
+
 		},
 		dataType: "json",
 		beforeSend: function()
@@ -179,15 +174,14 @@ function PushToAffectedDocumentsArray(array_object, array_docs)
 	}
 }
 
-function SubmitAddApplication(array_affected_documents)
-{	
+function SubmitAddApplication(array_affected_documents){
 	let form_data = new FormData($('#formAddApplication')[0]);
 
 	$.ajax({
-
 		url: "submit_add_application",
 		method: "post",
 		processData: false,
+        
 		contentType: false,
     	data: form_data,
     	dataType: "json",
@@ -199,8 +193,9 @@ function SubmitAddApplication(array_affected_documents)
     	{
     		$('#btnSubmitApplication').removeAttr('disabled');
 
-    		if(JsonObject['result'] == 1)
-    		{	
+    		if(JsonObject['result'] == 1){
+                // document.activeElement.blur();
+                $('#pdfPreviewModal').modal('hide');
     			$('#modalAddApplication').modal('hide');
     			$('#formAddApplication')[0].reset();
 
@@ -336,7 +331,7 @@ function SubmitApplicationAffectedDocuments(array_affected_document, application
 		{
 			if(JsonObject['result'] == 1)
 			{
-				
+
 			}
 			else
 			{
@@ -406,10 +401,8 @@ function LoadSectionHeadApplicationDetails(application_id)
 	});
 }
 
-function SubmitSectionHeadApproval(array_edit_docs, array_add_docs)
-{
+function SubmitSectionHeadApproval(array_edit_docs, array_add_docs){
 	$.ajax({
-
 		url: "submit_section_head_approval",
 		method: "post",
 		data: $('#formSectionHeadApproval').serialize(),
@@ -420,14 +413,14 @@ function SubmitSectionHeadApproval(array_edit_docs, array_add_docs)
 			$('#btnDispproveApplication').prop('disabled','disabled');
 		},
 		success: function(JsonObject)
-		{	
+		{
 			$('#btnApproveApplication').removeAttr('disabled');
 			$('#btnDispproveApplication').removeAttr('disabled');
 
 			array_add_docs = [];
 
 			if(JsonObject['result'] == 1)
-			{	
+			{
 				let application_id = $('#sec_hidden_application_id').val();
 
 				$('#modalApproveApplication').modal('hide');
@@ -471,12 +464,12 @@ function SubmitSectionHeadAffectedDocuments(application_id, array_edit_docs)
 		dataType: "json",
 		beforeSend: function()
 		{
-			
+
 		},
 		success: function(JsonObject)
-		{	
+		{
 			if(JsonObject['result'] == 1)
-			{	
+			{
 				toastr.success('Saved Affected Document Changes!');
 			}
 			else
@@ -588,28 +581,22 @@ function LoadQsDocumentDetails(active_doc_id)
 	});
 }
 
-function SubmitQsValidation(array_affected_documents)
-{
+function SubmitQsValidation(array_affected_documents){
 	$.ajax({
-
 		url: "submit_qs_validations",
 		method: "post",
 		data: $('#formQSValidation').serialize(),
 		dataType: "json",
-		beforeSend: function()
-		{
+		beforeSend: function(){
 			$('#btnSubmitQSValidation').prop('disabled','disabled');
 		},
-		success: function(JsonObject)
-		{	
+		success: function(JsonObject){
 			$('#btnSubmitQSValidation').removeAttr('disabled');
 
-			if(JsonObject['result'] == 1)
-			{	
+			if(JsonObject['result'] == 1){
 				let application_id = $('#qs_hidden_application_id').val();
 
 				array_affected_documents = [];
-
 				$('#modalQSValidation').modal('hide');
 				$('#formQSValidation')[0].reset();
 
@@ -620,9 +607,7 @@ function SubmitQsValidation(array_affected_documents)
 
 				//draw table
 				dt_applications.draw();
-			}
-			else
-			{
+			}else{
 				toastr.error('Error Saving Details');
 
 				if(JsonObject['error']['qs_remarks'] === undefined)
@@ -642,59 +627,49 @@ function SubmitQsValidation(array_affected_documents)
 	});
 }
 
-function SubmitQsValidationCheckpoints(array_affected_documents, application_id)
-{
+function SubmitQsValidationCheckpoints(array_affected_documents, application_id){
 	$.ajax({
 
 		url: "submit_qs_validations_checkpoints",
 		method: "get",
-		data: 
-		{
+		data:
+	    {
 			array_affected_documents: array_affected_documents,
 			application_id: application_id
 		},
 		dataType: "json",
-		beforeSend: function()
-		{
-			
+		beforeSend: function(){
+
 		},
-		success: function(JsonObject)
-		{	
-			if(JsonObject['result'] == 1)
-			{	
+		success: function(JsonObject){
+			if(JsonObject['result'] == 1){
 				toastr.success('Should be sending e-mail!');
-			}
-			else
-			{
+			}else{
 				toastr.error('Error Saving Details');
 			}
 		},
 		error: function(data, xhr, status){
-			
+
             toastr.error('An error occured!\n' + 'Data: ' + data + "\n" + "XHR: " + xhr + "\n" + "Status: " + status);
         }
 	});
 }
 
-function LoadAffectedDocumentApproval(affected_doc_id)
-{
+function LoadAffectedDocumentApproval(affected_doc_id){
 	$.ajax({
 
 		url: "load_affected_document_details",
 		method: "get",
-		data: 
+		data:
 		{
 			affected_doc_id: affected_doc_id,
 		},
 		dataType: "json",
-		beforeSend: function()
-		{
-			
+		beforeSend: function(){
+
 		},
-		success: function(JsonObject)
-		{	
-			if(JsonObject['result'] == 1)
-			{	
+		success: function(JsonObject){
+			if(JsonObject['result'] == 1){
 				let document_category = JsonObject['document_details'][0].application_details.document_category;
 				let document_type = JsonObject['document_details'][0].application_details.document_type;
 				let for_group = JsonObject['document_details'][0].application_details.for_group;
@@ -765,26 +740,20 @@ function LoadAffectedDocumentApproval(affected_doc_id)
 
 				$('#app_aff_doc_id').val(affected_document_id);
 
-				if(document_acdcs_pkid == null)
-				{
+				if(document_acdcs_pkid == null){
 					$('#btnViewAcdcsPkid').prop('disabled','disabled');
-				}
-				else
-				{	
+				}else{
 					$('#btnViewAcdcsPkid').removeAttr('disabled');
 					$('#app_aff_hidden_pkid').val(document_acdcs_pkid);
 				}
 
 				$('#app_aff_pic').val(person_in_charge).trigger('change');
 				$('#app_aff_revision_due_date').val(revision_due_date);
-			}
-			else
-			{
+			}else{
 				toastr.error('Error Saving Details');
 			}
 		},
 		error: function(data, xhr, status){
-			
             toastr.error('An error occured!\n' + 'Data: ' + data + "\n" + "XHR: " + xhr + "\n" + "Status: " + status);
         }
 	});
@@ -803,11 +772,11 @@ function SubmitApproveAffectedDocument(array_affected_documents)
 		$('#btnApproveAffectedDocument').prop('disabled','disabled');
 	},
 	success: function(JsonObject)
-	{	
+	{
 		$('#btnApproveAffectedDocument').removeAttr('disabled');
 
 		if(JsonObject['result'] == 1)
-		{	
+		{
 			let application_id = JsonObject['affected_document_details'][0].application_id;
 
 			if(array_affected_documents.length > 0)
@@ -870,9 +839,9 @@ function CheckApplicationAffectedDocumentStatus(application_id)
 
 	},
 	success: function(JsonObject)
-	{	
+	{
 		if(JsonObject['result'] == 1)
-		{		
+		{
 			SendMailer(application_id);
 			dt_applications.draw();
 		}
@@ -884,7 +853,7 @@ function CheckApplicationAffectedDocumentStatus(application_id)
 	error: function(data, xhr, status){
         toastr.error('An error occured!\n' + 'Data: ' + data + "\n" + "XHR: " + xhr + "\n" + "Status: " + status);
     }
-	});	
+	});
 }
 
 function ReturnDccValidationDetails(application_id)
@@ -940,45 +909,42 @@ function ReturnDccValidationDetails(application_id)
 	});
 }
 
-function SubmitOldDccValidation()
-{
+function SubmitOldDccValidation(){
 	$.ajax({
+        url: "submit_dcc_validation",
+        method: "post",
+        data: $('#formDccValidation').serialize(),
+        dataType: "json",
+        beforeSend: function(){
+            $('#btnSubmitDccValidation').prop('disabled','disabled');
+        },
+        success: function(JsonObject)
+        {
+            $('#btnSubmitDccValidation').removeAttr('disabled');
 
-	url: "submit_dcc_validation",
-	method: "post",
-	data: $('#formDccValidation').serialize(),
-	dataType: "json",
-	beforeSend: function()
-	{
-		$('#btnSubmitDccValidation').prop('disabled','disabled');
-	},
-	success: function(JsonObject)
-	{	
-		$('#btnSubmitDccValidation').removeAttr('disabled');
+            if(JsonObject['result'] == 1)
+            {
+                let application_id = $('#dcc_hidden_application_id').val();
 
-		if(JsonObject['result'] == 1)
-		{	
-			let application_id = $('#dcc_hidden_application_id').val();
+                SendMailer(application_id);
 
-			SendMailer(application_id);
+                $('#modalDccValidation').modal('hide');
+                $('#formDccValidation')[0].reset();
 
-			$('#modalDccValidation').modal('hide');
-			$('#formDccValidation')[0].reset();
+                toastr.success('Affected Document Validated!');
 
-			toastr.success('Affected Document Validated!');
-
-			//draw table
-			dt_applications.draw();
-		}
-		else
-		{
-			toastr.error('Error Saving Details');
-		}
-	},
-	error: function(data, xhr, status){
-		$('#btnSubmitDccValidation').removeAttr('disabled');
-        toastr.error('An error occured!\n' + 'Data: ' + data + "\n" + "XHR: " + xhr + "\n" + "Status: " + status);
-    }
+                //draw table
+                dt_applications.draw();
+            }
+            else
+            {
+                toastr.error('Error Saving Details');
+            }
+        },
+        error: function(data, xhr, status){
+            $('#btnSubmitDccValidation').removeAttr('disabled');
+            toastr.error('An error occured!\n' + 'Data: ' + data + "\n" + "XHR: " + xhr + "\n" + "Status: " + status);
+        }
 	});
 }
 
@@ -1033,19 +999,19 @@ function LoadSectionEditAffectedDocument(affected_doc_id)
 
 		url: "load_affected_document_details",
 		method: "get",
-		data: 
+		data:
 		{
 			affected_doc_id: affected_doc_id,
 		},
 		dataType: "json",
 		beforeSend: function()
 		{
-			
+
 		},
 		success: function(JsonObject)
-		{	
+		{
 			if(JsonObject['result'] == 1)
-			{	
+			{
 				let affected_document_number = JsonObject['document_details'][0].document_number;
 				let affected_document_name = JsonObject['document_details'][0].document_name;
 				let affected_document_revision_number = JsonObject['document_details'][0].document_revision_number;
@@ -1069,7 +1035,7 @@ function LoadSectionEditAffectedDocument(affected_doc_id)
 			}
 		},
 		error: function(data, xhr, status){
-			
+
             toastr.error('An error occured!\n' + 'Data: ' + data + "\n" + "XHR: " + xhr + "\n" + "Status: " + status);
         }
 	});
@@ -1081,19 +1047,19 @@ function LoadMinorRevisionDetails(application_id)
 
 		url: "load_application_details",
 		method: "get",
-		data: 
+		data:
 		{
 			application_id: application_id,
 		},
 		dataType: "json",
 		beforeSend: function()
 		{
-			
+
 		},
 		success: function(JsonObject)
-		{	
+		{
 			if(JsonObject['result'] == 1)
-			{	
+			{
 				let aidrc_application_id = JsonObject['application_details'][0].id;
 				let document_number = JsonObject['application_details'][0].document_number;
 				let document_title = JsonObject['application_details'][0].document_name;
@@ -1131,7 +1097,7 @@ function LoadMinorRevisionDetails(application_id)
 			}
 		},
 		error: function(data, xhr, status){
-			
+
             toastr.error('An error occured!\n' + 'Data: ' + data + "\n" + "XHR: " + xhr + "\n" + "Status: " + status);
         }
 
@@ -1144,19 +1110,19 @@ function LoadMasterListApplicationDetails(application_id)
 
 		url: "load_application_details",
 		method: "get",
-		data: 
+		data:
 		{
 			application_id: application_id,
 		},
 		dataType: "json",
 		beforeSend: function()
 		{
-			
+
 		},
 		success: function(JsonObject)
-		{	
+		{
 			if(JsonObject['result'] == 1)
-			{	
+			{
 				let aidrc_application_id = JsonObject['application_details'][0].id;
 				let document_number = JsonObject['application_details'][0].document_number;
 				let document_title = JsonObject['application_details'][0].document_name;
@@ -1207,7 +1173,7 @@ function LoadMasterListApplicationDetails(application_id)
 			}
 		},
 		error: function(data, xhr, status){
-			
+
             toastr.error('An error occured!\n' + 'Data: ' + data + "\n" + "XHR: " + xhr + "\n" + "Status: " + status);
         }
 
@@ -1233,11 +1199,11 @@ function SubmitMinorRevisions()
 			$('#btnSubmitRevisions').prop('disabled','disabled');
 		},
 		success: function(JsonObject)
-		{	
+		{
 			$('#btnSubmitRevisions').removeAttr('disabled');
 
 			if(JsonObject['result'] == 1)
-			{	
+			{
 
 				let application_id = $('#minor_hidden_application_id').val();
 
@@ -1264,70 +1230,53 @@ function SubmitMinorRevisions()
 	});
 }
 
-function SendMailer(application_id)
-{
+function SendMailer(application_id){
 	$.ajax({
-
 		url: "send_mailer",
 		method: "get",
-		data: 
+		data:
 		{
 			application_id: application_id,
 		},
 		dataType: "json",
-		beforeSend: function()
-		{
-			
+		beforeSend: function(){
 		},
-		success: function(JsonObject)
-		{	
-			if(JsonObject['result'] == 1)
-			{	
-				toastr.success('E-Mail Sent to Recipients!');	
-			}
-			else
-			{
+		success: function(JsonObject){
+			if(JsonObject['result'] == 1){
+				toastr.success('E-Mail Sent to Recipients!');
+			}else{
 				toastr.error('Error Saving Details');
 			}
 		},
 		error: function(data, xhr, status){
-			
             toastr.error('An error occured!\n' + 'Data: ' + data + "\n" + "XHR: " + xhr + "\n" + "Status: " + status);
         }
 
 	});
 }
 
-function CancelApplication(application_id)
-{
+function CancelApplication(application_id){
 	$.ajax({
-
 		url: "cancel_application",
 		method: "get",
-		data: 
+		data:
 		{
 			application_id: application_id,
 		},
 		dataType: "json",
-		beforeSend: function()
-		{
-			
+		beforeSend: function(){
+
 		},
-		success: function(JsonObject)
-		{	
-			if(JsonObject['result'] == 1)
-			{	
+		success: function(JsonObject){
+			if(JsonObject['result'] == 1){
 				SendMailer(application_id);
-				toastr.success('Cancelled Application');	
+				toastr.success('Cancelled Application');
 				dt_applications.draw();
-			}
-			else
-			{
+			}else{
 				toastr.error('Error Saving Details');
 			}
 		},
 		error: function(data, xhr, status){
-			
             toastr.error('An error occured!\n' + 'Data: ' + data + "\n" + "XHR: " + xhr + "\n" + "Status: " + status);
         }
 
@@ -1398,7 +1347,7 @@ function SubmitApplicationAffectedDocumentsFromApprover(array_affected_documents
 		{
 			if(JsonObject['result'] == 1)
 			{
-				
+
 			}
 			else
 			{
@@ -1472,7 +1421,7 @@ function LoadViewEditApplicationDetails(application_id, view_edit, edit_status)
 				$('#edit_hidden_status').val(edit_status);
 
 				if(view_edit == 1)
-				{	
+				{
 					$('.edit_attachment_row').addClass('d-none');
 					$('#btnEditDocumentDetails').addClass('d-none');
 					$('#ViewEditApplicationDetails').addClass('d-none');
@@ -1485,13 +1434,13 @@ function LoadViewEditApplicationDetails(application_id, view_edit, edit_status)
 					$('#edit_doc_no').prop('disabled','disabled');
 					$('#edit_doc_title').prop('disabled','disabled');
 					$('#edit_doc_rev_no').prop('disabled','disabled');
-					
+
 
 					$('#edit_application_approver').prop('disabled','disabled');
 					$('#edit_qs_inspector').prop('disabled','disabled');
 				}
 				else
-				{	
+				{
 					$('.edit_attachment_row').removeClass('d-none');
 					$('#btnEditDocumentDetails').removeClass('d-none');
 					$('#ViewEditApplicationDetails').removeClass('d-none');
@@ -1522,51 +1471,49 @@ function LoadViewEditApplicationDetails(application_id, view_edit, edit_status)
 	});
 }
 
-function SubmitEditApplication(array_documents)
-{	
-		let form_data = new FormData($('#formEditApplication')[0]);
+// CLARK COMMENT 07/23/2025
+// function SubmitEditApplication(array_documents){
+//         // console.log('test1');
+// 		let form_data = new FormData($('#formEditApplication')[0]);
+// 		$.ajax({
+//             url: "submit_edit_application",
+//             method: "post",
+//             processData: false,
+//             contentType: false,
+//             data: form_data,
+//             dataType: "json",
+//             beforeSend: function(){
+//     		$('#btnSubmitEditApplication').prop('disabled','disabled');
+//             },
+//             success: function(JsonObject)
+//             {
 
-		$.ajax({
+//                 $('#btnSubmitEditApplication').removeAttr('disabled');
 
-		url: "submit_edit_application",
-		method: "post",
-		processData: false,
-		contentType: false,
-    	data: form_data,
-    	dataType: "json",
-    	beforeSend: function()
-    	{
-    		$('#btnSubmitEditApplication').prop('disabled','disabled');
-    	},
-    	success: function(JsonObject)
-    	{
-    		$('#btnSubmitEditApplication').removeAttr('disabled');
+//                 if(JsonObject['result'] == 1)
+//                 {
+//                     array_documents = [];
 
-    		if(JsonObject['result'] == 1)
-    		{	
-    			array_documents = [];
+//                     $('#modalViewEditApplication').modal('hide');
+//                     $('#formEditApplication')[0].reset();
 
-    			$('#modalViewEditApplication').modal('hide');
-    			$('#formEditApplication')[0].reset();
+//                     dt_applications.draw();
 
-    			dt_applications.draw();
+//                     SendMailer(JsonObject['application_id']);
 
-    			SendMailer(JsonObject['application_id']);
-
-    			toastr.success('Application Edited!');
-    		}
-    		else
-    		{
-    			toastr.error('Saving Application Error!');
-    		}
-    	},
-    	error: function(data, xhr, status){
-    		$('#btnSubmitEditApplication').removeAttr('disabled');
-            toastr.error('An error occured!\n' + 'Data: ' + data + "\n" + "XHR: " + xhr + "\n" + "Status: " + status);
-        }
-
-    });
-}
+//                     toastr.success('Application Edited!');
+//                 }
+//                 else
+//                 {
+//                     toastr.error('Saving Application Error!');
+//                 }
+//             },
+//             error: function(data, xhr, status){
+//                 $('#btnSubmitEditApplication').removeAttr('disabled');
+//                 toastr.error('An error occured!\n' + 'Data: ' + data + "\n" + "XHR: " + xhr + "\n" + "Status: " + status);
+//             }
+//     });
+// }
 
 function LoadGlobalAffectedDocuments(active_doc_id, application_id, approver_id)
 {
@@ -1715,11 +1662,11 @@ function SubmitChangeQsInspector()
 			$('#btnSubmitChangeQsInspector').prop('disabled','disabled');
 		},
 		success: function(JsonObject)
-		{	
+		{
 			$('#btnSubmitChangeQsInspector').removeAttr('disabled');
 
 			if(JsonObject['result'] == 1)
-			{	
+			{
 				let application_id = JsonObject['application_id'];
 
 				$('#modalChangeQsInspector').modal('hide');

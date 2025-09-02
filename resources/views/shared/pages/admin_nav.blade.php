@@ -6,7 +6,7 @@
          alt="CNPTS"
          class="brand-image img-circle elevation-3"
          style="opacity: .8">
-    <span class="brand-text font-weight-light">AIDRC</span>
+    <span class="brand-text font-weight-light">AIDRCV2</span>
   </a>
 
   <!-- Sidebar -->
@@ -27,7 +27,7 @@
 
 
         <li class="nav-item">
-          <a href="{{ route('dashboard') }}" class="nav-link">
+          <a href="{{ route('test_dashboard') }}" class="nav-link">
             <i class="nav-icon fas fa-tachometer-alt"></i>
             <p>
               Dashboard
@@ -43,7 +43,7 @@
             </p>
           </a>
         </li>
-     
+
 
         <li class="nav-item">
           <a href="{{ route('affected_documents') }}" class="nav-link">
@@ -53,7 +53,7 @@
             </p>
           </a>
         </li>
-     
+
 
 
       </ul>

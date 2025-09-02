@@ -10,23 +10,33 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PdfController;
+
+// Route::get('/test_mailer/{id}', function($id) {
+//     $request = new \Illuminate\Http\Request(['application_id' => $id]);
+//     return app(\App\Http\Controllers\ApplicationController::class)->send_mailer($request);
+// });
 
 Route::get('/', function () {
-    return view('dashboard');
-})->name('dashboard');
+    return view('test_dashboard');
+})->name('test_dashboard');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->name('dashboard');
+// Route::get('/', function () { //orig code
+//     return view('dashboard');
+// })->name('dashboard');
 
-Route::get('/dashboard_test', function () {
+Route::get('/dashboard_test', function(){
     return view('dashboard_test');
 })->name('dashboard_test');
 
-Route::get('/dashboard_new', function () {
+Route::get('/dashboard', function(){
+    return view('dashboard');
+})->name('dashboard');
+
+Route::get('/dashboard_new', function(){
     return view('dashboard_new');
 })->name('dashboard_new');
-
 
 Route::get('/master_list', function () {
     return view('master_list');
@@ -67,6 +77,9 @@ Route::get('/generate_user_qrcode', 'UserController@generate_user_qrcode');
 Route::post('/import_user', 'UserController@import_user');
 
 //ACCESS LEVEL CONTROLLER
+Route::get('/load_rapidx_users_with_esign', 'AccessLevelController@loadRapidxUsersWithEsign');
+Route::get('/aidrc_v2/check-image-exists/{emp_id}', 'AccessLevelController@checkImageExists');
+Route::get('/validate_emp_no_signature','AccessLevelController@validate_emp_no_signature');
 Route::get('/load_rapidx_user_list','AccessLevelController@load_rapidx_user_list');
 Route::get('/load_originator_list','AccessLevelController@load_originator_list');
 Route::get('/load_approver_list','AccessLevelController@load_approver_list');
@@ -87,9 +100,11 @@ Route::get('/load_array_affected_documents','ApplicationController@load_array_af
 Route::post('/submit_add_application','ApplicationController@submit_add_application');
 Route::get('/submit_application_affected_documents','ApplicationController@submit_application_affected_documents');
 
-Route::get('/download_attached_document/{application_id}','ApplicationController@download_attached_document')->name('download_attached_document');
+// Route::get('/download_attached_document_new/{application_id}','NewApplicationController@download_attached_document_new')->name('download_attached_document_new');
+// Route::get('/download_attached_document123/{application_id}','ApplicationController@download_attached_document123')->name('download_attached_document123');
+Route::get('/download_attached_doc_excel/{application_id}','ApplicationController@download_attached_doc_excel')->name('download_attached_doc_excel');
+Route::get('/get_application_attachment','ApplicationController@get_application_attachment');
 
-Route::get('/load_application_details','ApplicationController@load_application_details');
 Route::get('/load_affected_documents_table','ApplicationController@load_affected_documents_table');
 Route::post('/submit_section_head_approval','ApplicationController@submit_section_head_approval');
 Route::get('/load_qs_validation_checkpoints','ApplicationController@load_qs_validation_checkpoints');
@@ -116,7 +131,6 @@ Route::post('/submit_change_qs_inspector','ApplicationController@submit_change_q
 Route::get('/load_acdcs_master_list','MasterListController@load_acdcs_master_list');
 Route::get('/load_affected_documents_master_list','MasterListController@load_affected_documents_master_list');
 Route::get('/load_acdcs_pending_documents','MasterListController@load_acdcs_pending_documents');
-
 
 //mailer
 Route::get('/send_mailer','ApplicationController@send_mailer');
@@ -226,3 +240,10 @@ Route::get('/load_for_control_status_email','NewApplicationController@load_for_c
 Route::get('/load_for_control_affected_documents_email_overdue','NewApplicationController@load_for_control_affected_documents_email_overdue');
 
 Route::post('/submit_dcc_edit_document','MasterListController@submit_dcc_edit_document');
+
+Route::get('/download_attached_document_new/{application_id}','PdfController@download_attached_document_new')->name('download_attached_document_new');
+Route::post('/edit_pdf_attachment', 'PdfController@attachDataToPdf');
+Route::post('/save_pdf_patch_data', 'PdfController@savePdfPatchData');
+Route::get('/get_patch_data', 'PdfController@getPatchData');
+Route::post('/change_application_status', 'NewApplicationController@changeApplicationStatus');
+// Route::get('/get-patchdata/{application_id}', [PdfController::class, 'getPatchData']);

@@ -6,7 +6,7 @@
       <a class="nav-link" data-widget="pushmenu" href="#" id="btnExpandHeader"><i class="fas fa-bars"></i></a>
     </li>
     <li class="nav-item d-none d-sm-inline-block">
-      <a href="{{ route('dashboard') }}" class="nav-link">Application for Internal Document Revision Confirmation</a>
+      <a href="{{ route('dashboard') }}" class="nav-link">Application for Internal Document Revision Confirmation Version 2</a>
     </li>
     <!-- <li class="nav-item d-none d-sm-inline-block">
       <a href="#" class="nav-link">Contact</a>
@@ -119,7 +119,7 @@
     </li> -->
     <li class="nav-item dropdown">
       <a class="nav-link" > <!-- data-toggle="dropdown" href="#" -->
-        <i class="far fa-user"></i> 
+        <i class="far fa-user"></i>
        @php
               if(isset($_SESSION['rapidx_user_id'])){
                   echo $_SESSION['rapidx_name'];

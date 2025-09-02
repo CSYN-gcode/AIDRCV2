@@ -45,11 +45,9 @@ class MasterListController extends Controller
             try
             {
                 Applications::where('id', $request->view_application_id)->update([
-
                     'document_number' => $request->view_doc_no,
                     'document_name' => $request->view_doc_title,
                     'updated_at' => date('Y-m-d H:i:s'),
-
                 ]);
 
                 return response()->json(['result' => 1]);
@@ -116,7 +114,7 @@ class MasterListController extends Controller
         //return $applications_final;
 
         if(isset($request->check_document_status))
-        {   
+        {
             if($request->document_status == 2)
             {
                 for($i = 0; $i < count($applications_final); $i++)
@@ -157,7 +155,7 @@ class MasterListController extends Controller
                 {
                     $arrayApplications[] = $applications_final[$i]->id;
                 }
-            }   
+            }
         }
         else
         {
@@ -264,7 +262,7 @@ class MasterListController extends Controller
                 else
                 {
                     $result = "---";
-                }    			
+                }
     		}
     		else
     		{
@@ -276,7 +274,7 @@ class MasterListController extends Controller
     	->addColumn('dcc_validator', function($application){
 
     		if($application->status <= 9)
-    		{ 
+    		{
                 if(count($application->dcc_validation_details) > 0)
                 {
     			     $result = $application->dcc_validation_details[0]->dcc_validator_details->name;
@@ -284,7 +282,7 @@ class MasterListController extends Controller
                 else
                 {
                     $result = "---";
-                }  
+                }
     		}
     		else
     		{
@@ -295,7 +293,7 @@ class MasterListController extends Controller
     	})
         ->addColumn('turnaround_time', function($application){
 
-            
+
 
             if($application->status <= 9)
             {
@@ -313,7 +311,7 @@ class MasterListController extends Controller
                 else
                 {
                     $result = "---";
-                }  
+                }
             }
             else
             {
@@ -326,22 +324,15 @@ class MasterListController extends Controller
     	->addColumn('status', function($application){
 
     		$result = '';
-
             $search_revision_no = $application->document_revision_number;
 
-            if($application->control_details != null)
-            {
-                if($application->control_details->rev_no == $search_revision_no)
-                {
+            if($application->control_details != null){
+                if($application->control_details->rev_no == $search_revision_no){
                     $result = "CONTROLLED";
-                }
-                else
-                {
+                }else{
                     $result = "NOT CONTROLLED";
                 }
-            }
-            else
-            {
+            }else{
                 $result = "NOT CONTROLLED";
             }
 
@@ -350,23 +341,16 @@ class MasterListController extends Controller
     	->addColumn('document_control_date', function($application){
 
     		$result = "---";
+            $search_revision_no = $application->document_revision_number;
 
-             $search_revision_no = $application->document_revision_number;
-
-            if($application->control_details != null)
-            {
-                if($application->control_details->rev_no == $search_revision_no)
-                {
+            if($application->control_details != null){
+                if($application->control_details->rev_no == $search_revision_no){
                     $result = $application->control_details->date_time_created;
                     //$result = $application->control_details->lastupdate;
-                }
-                else
-                {
+                }else{
                     $result = "---";
                 }
-            }
-            else
-            {
+            }else{
                 $result = "---";
             }
 
@@ -376,9 +360,9 @@ class MasterListController extends Controller
     }
 
     public function load_affected_documents_master_list(Request $request)
-    {   
+    {
         $affected_documents = AffectedDocuments::with(['application_details' => function($query2){
-        
+
             $query2->where('logdel',0);
 
         }
@@ -415,9 +399,9 @@ class MasterListController extends Controller
         $affected_documents_final = collect($affected_documents)->flatten(1);
         $array_affected_documents = [];
 
-        
+
         if(isset($request->check_document_status))
-        {   
+        {
             if($request->document_status == 2)
             {
                 for($i = 0; $i < count($affected_documents_final); $i++)
@@ -458,7 +442,7 @@ class MasterListController extends Controller
                 {
                     $array_affected_documents[] = $affected_documents_final[$i]->id;
                 }
-            }   
+            }
         }
         else
         {
@@ -501,22 +485,22 @@ class MasterListController extends Controller
             switch($document->approver_type)
             {
                 case 1:
-                {   
+                {
                     $result = "Affected Document";
                     break;
                 }
                 case 2:
-                {   
+                {
                     $result = "FMEA";
                     break;
                 }
                 case 3:
-                {   
+                {
                     $result = "Control Plan";
                     break;
                 }
                 case 4:
-                {   
+                {
                     $result = "Pre Production Checksheet";
                     break;
                 }
@@ -643,7 +627,7 @@ class MasterListController extends Controller
                 $result = "---";
             }
 
-            
+
 
             return $result;
         })
@@ -658,7 +642,7 @@ class MasterListController extends Controller
     }
 
     public function export_applications_report(Request $request)
-    {   
+    {
        $applications = Applications::with(['department_details','originator_details','dcc_validation_details' => function($query){
 
             $query->where('logdel',0)->orderBy('created_at','desc');
@@ -707,7 +691,7 @@ class MasterListController extends Controller
         //return $applications_final;
 
         if(isset($request->check_document_status))
-        {   
+        {
             if($request->document_status == 2)
             {
                 for($i = 0; $i < count($applications_final); $i++)
@@ -748,7 +732,7 @@ class MasterListController extends Controller
                 {
                     $arrayApplications[] = $applications_final[$i]->id;
                 }
-            }   
+            }
         }
         else
         {
@@ -768,16 +752,16 @@ class MasterListController extends Controller
             $query->where('logdel',0)->orderBy('created_at','desc');
 
         }, 'dcc_validation_details.dcc_validator_details','control_details'])->whereNotIn('status',[3,5,10,11])->where('logdel',0)->orderBy('created_at','desc')->whereIn('id', $arrayApplications)->get();
-        
+
         $title = 'AIDRC Applications - ' . date('Y-m-d') . ".xlsx";
-        
+
 
         //return $request->formData;
 
         try
         {
             if(count($applications2) > 0)
-            {   
+            {
                 //return view('exports.applications_export')->with(compact('applications'));
 
                 return Excel::download(new ApplicationsExport($applications2), $title);
@@ -791,13 +775,13 @@ class MasterListController extends Controller
             }
         }
         catch(\Exception $e) {
-                
+
                 echo "<script>";
                 echo "alert('Error Exporting!');";
                 echo "window.close();";
                 echo "</script>";
 
-        }   
+        }
     }
 
     public function submit_edit_documents_dcc(Request $request)
@@ -812,7 +796,7 @@ class MasterListController extends Controller
                 'document_number' => $request->ml_doc_no,
                 'document_name' => $request->ml_doc_title,
                 'document_revision_number' => $request->ml_doc_rev_no,
-                'updated_at' => date('Y-m-d H:i:s'), 
+                'updated_at' => date('Y-m-d H:i:s'),
 
             ]);
 
@@ -829,7 +813,7 @@ class MasterListController extends Controller
     public function export_affected_documents_report(Request $request)
     {
        $affected_documents = AffectedDocuments::with(['application_details' => function($query2){
-        
+
             $query2->where('logdel',0);
 
         }
@@ -866,9 +850,9 @@ class MasterListController extends Controller
         $affected_documents_final = collect($affected_documents)->flatten(1);
         $array_affected_documents = [];
 
-        
+
         if(isset($request->check_document_status))
-        {   
+        {
             if($request->document_status == 2)
             {
                 for($i = 0; $i < count($affected_documents_final); $i++)
@@ -909,7 +893,7 @@ class MasterListController extends Controller
                 {
                     $array_affected_documents[] = $affected_documents_final[$i]->id;
                 }
-            }   
+            }
         }
         else
         {
@@ -936,7 +920,7 @@ class MasterListController extends Controller
         try
         {
             if(count($affected_documents_final2) > 0)
-            {   
+            {
                 //return $affected_documents_final2;
 
                 //return view('exports.affected_documents_export')->with(compact('affected_documents'));
@@ -955,13 +939,13 @@ class MasterListController extends Controller
             }
         }
         catch(\Exception $e) {
-                
+
                 echo "<script>";
                 echo "alert('Error Exporting!');";
                 echo "window.close();";
                 echo "</script>";
 
-        }   
+        }
 
     }
 }

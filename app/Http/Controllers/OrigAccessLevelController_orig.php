@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -19,39 +18,6 @@ use App\Model\AffectedDocuments;
 
 class AccessLevelController extends Controller
 {
-    public function checkImageExists($empId){
-    	// Define the path to the images directory
-        $imagePath = '../RapidX_E-Signature/'.$empId.'.png';
-
-        // Check if the image exists
-        if (File::exists($imagePath)) {
-            return response()->json(['exists' => true]); // Image exists
-        } else {
-            return response()->json(['exists' => false]); // Image not found
-        }
-    }
-
-    public function loadRapidxUsersWithEsign(Request $request){
-        $user_with_esign = [];
-    	$users = RapidXUser::where('user_stat', 1)->orderBy('name','asc')->whereNotIn('name',['Admin','Test QAD Admin Approver'])->get();
-        // return $users;
-        // $users->employee_number;
-        // return $users[0]->employee_number;
-        foreach ($users as $value) {
-            $imagePath = '../RapidX_E-Signature/'.$value->employee_number.'.png';
-
-            if(File::exists($imagePath)) {
-                // $user_with_esign[] = $value->employee_number;
-                $user_with_esign[] = [
-                    'id' => $value->id,
-                    'emp_no' => $value->employee_number,
-                    'name' => $value->name,
-                ];
-            }
-        }
-    	return response()->json(['users' => $user_with_esign]);
-    }
-
     public function load_rapidx_user_list(Request $request)
     {
     	$users = RapidXUser::where('user_stat', 1)->orderBy('name','asc')->whereNotIn('name',['Admin','Test QAD Admin Approver'])->get();

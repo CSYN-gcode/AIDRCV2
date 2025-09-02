@@ -36,7 +36,7 @@
 
               <!-- Start Page Content -->
               <div class="card-body">
-                  <div style="float: right;">                   
+                  <div style="float: right;">
 
                     <button class="btn btn-primary" data-toggle="modal" data-target="#modalAddUser" id="btnShowAddUserModal"><i class="fa fa-user-plus"></i> Add User</button>
                   </div> <br><br>
@@ -45,7 +45,8 @@
                       <thead>
                         <tr>
                           <th>Action</th>
-                          <th>Name</th>
+                          <th>Username</th>
+                          <th>Full Name</th>
                           <th>Approver Type</th>
                         </tr>
                       </thead>
@@ -132,12 +133,21 @@
         theme: "bootstrap4"
     });
 
-    dt_users = $('#tblUsers').DataTable(/*{
+    dt_users = $('#tblUsers').DataTable({
 
-       "processing" : true,
-        "serverSide" : true,
-
-    }*/);
+    //    "processing" : true,
+    //     "serverSide" : true,
+    //     "ajax": {
+    //         url: "load_accesslevel_table",
+    //     },
+    //     "columns": [
+    //     { "data": "action"},
+    //     { "data": "username"},
+    //     { "data": "fullname"},
+    //     { "data": "access_level"},
+    //     ],
+    //     "order": [0, 'desc']
+    });
 
   });
 
