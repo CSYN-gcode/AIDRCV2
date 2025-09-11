@@ -115,12 +115,10 @@ $layout = 'layouts.user_layout';
         <section class="content-header">
             <div class="container-fluid">
                 <div class="row mb-2">
-                    <div class="col-sm-6">
-                        <h1>
-
-                        </h1>
-                    </div>
-                    <div class="col-sm-6">
+                    {{-- <div class="col-sm-6">
+                        <h1>TEST DASHBOARD</h1>
+                    </div> --}}
+                    <div class="col-sm-12">
                         <ol class="breadcrumb float-sm-right">
                             <li class="breadcrumb-item active">TEST DASHBOARD</li>
                         </ol>
@@ -3573,9 +3571,6 @@ $layout = 'layouts.user_layout';
         });
 
         $('#btnEditApplicationDetails').click(function() {
-            $('#edit_attachment').prop('required', true);
-            $('#edit_attachment_excel').prop('required', true);
-
             $('#edit_attachment').removeAttr('disabled');
             $('#edit_attachment_excel').removeAttr('disabled');
             $('#view_doc_category').removeAttr('disabled');
@@ -3618,9 +3613,6 @@ $layout = 'layouts.user_layout';
             let view_edit = "1";
 
             LoadViewApplicationDetails(view_application_id, view_edit);
-
-            $('#edit_attachment').prop('required', false);
-            $('#edit_attachment_excel').prop('required', false);
 
             $('#edit_attachment').prop('disabled', 'disabled');
             $('#edit_attachment_excel').prop('disabled', 'disabled');

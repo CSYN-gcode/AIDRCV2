@@ -1151,16 +1151,16 @@ function LoadViewApplicationDetails(application_id, view_edit){
                     let uploadedFile = $('#edit_attachment')[0].files[0];
                     let filePath;
 
-                    console.log('Uploaded file detected:', uploadedFile);
-
                     // Use Object URL for preview
                     filePath = URL.createObjectURL(uploadedFile);
+
+                    console.log('Uploaded file detected:', uploadedFile);
+                    $('#edit_attachment_excel').prop('required', true);
 
                     $('#editApproverButton').attr('data-filepath', filePath);
                     // Since new file is uploaded, clear esign details
                     $('#editApproverTable tbody').empty();
                     esign_details = []; // reset
-
                 }else{
                     console.log('Existing file:');
 
@@ -1305,6 +1305,15 @@ function LoadViewApplicationDetails(application_id, view_edit){
 }
 
 function SubmitEditApplication(){
+    let $form = $("#formEditApplication")[0]; // get raw form element
+
+    // ✅ run native HTML5 validation before proceeding
+    if (!$form.checkValidity()){
+        $form.reportValidity(); // show the browser's validation popup
+        toastr.error('Please upload an excel file before submitting.');
+        return; // stop here if invalid
+    }
+
 	let form_data = new FormData($('#formEditApplication')[0]);
     let signatureData = [];
 
@@ -1321,10 +1330,18 @@ function SubmitEditApplication(){
         let pdfheight = $('#pdfPreview').data('pdfHeight');
 
         let canvas = $('#pdfPreview').find('canvas')[0];
-        let CanvasWidth = canvas.width;
-        let CanvasHeight = canvas.height;
+        let CanvasWidth = 0;
+        let CanvasHeight = 0;
 
-        if(coordinatesText !== "No coordinates selected") {
+        if (canvas) {
+            CanvasWidth = canvas.width;
+            CanvasHeight = canvas.height;
+        }
+
+        // let CanvasWidth = canvas.width;
+        // let CanvasHeight = canvas.height;
+
+        if(coordinatesText !== "No coordinates selected"){
             let matches = coordinatesText.match(/X:\s*([\d.]+),\s*Y:\s*([\d.]+)/);
             if (matches) {
                 let x = parseFloat(matches[1]);
@@ -1415,11 +1432,13 @@ function SubmitEditApplication(){
     		}else{
        			toastr.error('Application Submission Failed!');
 
-    			if(JsonObject['error']['edit_attachment'] === undefined){
-		          $('#edit_attachment').removeClass('is-invalid');
-		        }else{
-		          $('#edit_attachment').addClass('is-invalid');
-		        }
+                // if (JsonObject['error']['edit_excel_file'] === undefined) {
+                //     $("#edit_attachment_excel").removeClass('is-invalid');
+                //     $("#edit_attachment_excel").attr('title', '');
+                // } else {
+                //     $("#edit_attachment_excel").addClass('is-invalid');
+                //     $("#edit_attachment_excel").attr('title', response['error']['edit_excel_file']);
+                // }
 
 		        if(JsonObject['error']['view_doc_title'] === undefined){
 		          $('#view_doc_title').removeClass('is-invalid');

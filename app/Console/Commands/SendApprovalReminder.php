@@ -77,6 +77,8 @@ class SendApprovalReminder extends Command
                 }
 
                 // $send_to = ['cdcasuyon@pricon.ph']; //current approver only
+                // $send_cc = ['cdcasuyon@pricon.ph']; //current approver only
+
                 $send_to = [$currentApprover->user_details->email]; //current approver only
                 $send_cc = [optional($application->originator_details)->email];
                 $data = ['application' => [$application]];
@@ -85,7 +87,7 @@ class SendApprovalReminder extends Command
                     Mail::send('mail.aidrc_new_application', $data, function ($message) use ($send_to, $send_cc) {
                         $message->to($send_to)
                                 ->cc($send_cc)
-                                ->bcc('cdcasuyon@pricon.ph', 'dmmarmol@pricon.ph')
+                                ->bcc(['cdcasuyon@pricon.ph', 'dmmarmol@pricon.ph'])
                                 ->subject('AIDRCV2: Reminder - Application for Approval');
                     });
 
