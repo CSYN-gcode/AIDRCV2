@@ -55,19 +55,6 @@ $layout = 'layouts.user_layout';
             height: auto !important;
         }
 
-        /* Container for the canvas rendering the PDF */
-        /* #pdfPreview {
-            width: 100%;
-            height: 100%;
-            position: relative;
-        } */
-
-        /* Ensure the canvas takes full size inside the modal */
-        /* #pdfPreview canvas {
-            width: 100% !important;
-            height: auto !important;
-        } */
-
         #pdfEditPdfWrapper{
             position: relative;
             width: 100%;
@@ -93,73 +80,10 @@ $layout = 'layouts.user_layout';
             height: auto !important;
         }
 
-        /* Container for the canvas rendering the PDF */
-        /* #pdfEditPdfCanvas {
-            width: 100%;
-            height: 100%;
-            position: relative;
-        } */
-
-        /* Ensure the canvas takes full size inside the modal */
-        /* #pdfEditPdfCanvas canvas {
-            width: 100% !important;
-            height: auto !important;
-        } */
-
         .previewTextOverlay {
             font-family: Arial, sans-serif;
             color: black;
         }
-
-        /* Container for the canvas rendering the PDF
-        #pdfPreview {
-            width: 100%;
-            height: 100%;
-            position: relative;
-        } */
-
-        /* Ensure the modal takes up full width */
-        /* .modal-dialog {
-            max-width: 100%;
-            width: 90%;
-        } */
-
-        /* Ensure borders look like Bootstrap 4 form-control */
-        /* .select2-container--bootstrap4 .select2-selection {
-            display: block;
-            width: 100%;
-            padding: 0.375rem 0.75rem;
-            font-size: 1rem;
-            line-height: 1.5;
-            color: #495057;
-            background-color: #fff;
-            background-clip: padding-box;
-            border: 1px solid #ced4da;
-            border-radius: 0.25rem;
-            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-        }
-
-        .select2-container--bootstrap4.select2-container--focus .select2-selection {
-            border-color: #80bdff;
-            outline: 0;
-            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-        } */
-
-        /* Fix missing border and padding on Bootstrap 4 + Select2 */
-        /* .select2-container--bootstrap4 .select2-selection {
-            border: 1px solid #ced4da !important;
-            border-radius: 0.25rem;
-            height: calc(2.25rem + 2px);
-            padding: 0.375rem 0.75rem;
-            background-color: #fff;
-            font-size: 1rem;
-            color: #495057;
-        }
-
-        .select2-container--bootstrap4.select2-container--focus .select2-selection {
-            border-color: #80bdff !important;
-            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-        } */
 
         .select2-container--bootstrap4 .select2-selection {
             display: block;
@@ -191,14 +115,12 @@ $layout = 'layouts.user_layout';
         <section class="content-header">
             <div class="container-fluid">
                 <div class="row mb-2">
-                    <div class="col-sm-6">
-                        <h1>
-
-                        </h1>
-                    </div>
-                    <div class="col-sm-6">
+                    {{-- <div class="col-sm-6">
+                        <h1>TEST DASHBOARD</h1>
+                    </div> --}}
+                    <div class="col-sm-12">
                         <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item active">Dashboard</li>
+                            <li class="breadcrumb-item active">TEST DASHBOARD</li>
                         </ol>
                     </div>
                 </div>
@@ -1294,47 +1216,6 @@ $layout = 'layouts.user_layout';
                                 </div>
 
                                 <div class="col-sm-7">
-                                    {{-- <div class="row">
-                                        <div class="col">
-                                            <div class="card card-primary">
-                                                <div class="card-header">
-                                                    <h5 class="card-title"><i class="fa fa-info-circle"></i> Attachment Details</h5>
-                                                </div>
-                                                <div class="card-body">
-                                                    <div class="row">
-                                                        <div class="col">
-                                                            <div class="form-group">
-                                                                <div id="PdfAttachmentDiv">
-                                                                    <label class="form-control-label">PDF Attachment:</label>
-                                                                    <a href="#" id="downloadPdfLink">
-                                                                        <button type="button" class="btn btn-primary btn-sm">
-                                                                            <i class="fa-solid fa-file-arrow-down"></i>&nbsp; Download PDF
-                                                                        </button>
-                                                                    </a>
-                                                                </div>
-                                                                    <input type="text" class="form-control form-control-sm" name="view_uploaded_pdf_file" id="txtViewUploadedPdfFile" readonly>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col">
-                                                            <div class="form-group">
-                                                                <div id="RawAttachmentDiv">
-                                                                    <label class="form-control-label">EXCEL Attachment:</label>
-                                                                    <a href="#" id="downloadRawLink">
-                                                                        <button type="button" class="btn btn-primary btn-sm">
-                                                                            <i class="fa-solid fa-file-arrow-down"></i>&nbsp; Download RAW
-                                                                        </button>
-                                                                    </a>
-                                                                </div>
-                                                                    <input type="text" class="form-control form-control-sm" name="view_uploaded_raw_file" id="txtViewUploadedRawFile" readonly>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div> --}}
-
                                     <div class="row">
                                         <div class="col">
                                             <p><i class="fa fa-info-circle"></i> <strong>APPLICATION REVIEW</strong>: Application
@@ -3690,9 +3571,6 @@ $layout = 'layouts.user_layout';
         });
 
         $('#btnEditApplicationDetails').click(function() {
-            $('#edit_attachment').prop('required', true);
-            $('#edit_attachment_excel').prop('required', true);
-
             $('#edit_attachment').removeAttr('disabled');
             $('#edit_attachment_excel').removeAttr('disabled');
             $('#view_doc_category').removeAttr('disabled');
@@ -3735,9 +3613,6 @@ $layout = 'layouts.user_layout';
             let view_edit = "1";
 
             LoadViewApplicationDetails(view_application_id, view_edit);
-
-            $('#edit_attachment').prop('required', false);
-            $('#edit_attachment_excel').prop('required', false);
 
             $('#edit_attachment').prop('disabled', 'disabled');
             $('#edit_attachment_excel').prop('disabled', 'disabled');

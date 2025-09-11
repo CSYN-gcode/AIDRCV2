@@ -1334,7 +1334,6 @@ class NewApplicationController extends Controller{
         session_start();
         date_default_timezone_set('Asia/Manila');
         $validator = '';
-
         $validator = Validator::make($request->all(), [
             'view_application_id' => 'required',
             'view_doc_category' => 'required',
@@ -1344,6 +1343,8 @@ class NewApplicationController extends Controller{
         $application_details = Applications::where('id', $request->view_application_id)->where('logdel', 0)->get();
 
         if ($validator->passes()) {
+
+            // return 'true';
             if (count($application_details) > 0) {
                 try {
                     ApplicationRevisions::insert([
