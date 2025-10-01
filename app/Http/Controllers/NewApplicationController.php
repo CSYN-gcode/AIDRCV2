@@ -31,7 +31,7 @@ use Carbon\Carbon;
 
 class NewApplicationController extends Controller{
     public function load_for_control_status_email(Request $request){
-        $applications =  Applications::with(['control_details' => function ($query2) {
+        $applications =  Applications::with(['control_details' => function ($query2){
             $query2->where('logdel', 0);
         }])->where('logdel', 0)->where('status', 9)->orderBy('created_at', 'desc')->get();
 
@@ -246,12 +246,20 @@ class NewApplicationController extends Controller{
             // orWhere('application_section_head', $originator_id)->get();
         }
 
-        if (isset($request->check_section_department)) {
+        if(isset($request->check_section_department)) {
             $applications = $applications->whereIn('department', $request->section_department);
         }
 
-        if (isset($request->check_originator)) {
+        if(isset($request->check_originator)) {
             $applications = $applications->whereIn('application_originator', $request->originator);
+        }
+
+        if(isset($request->check_category)){
+            $applications = $applications->whereIn('document_category', $request->category);
+        }
+
+        if(isset($request->check_app_status)){
+            $applications = $applications->whereIn('status', $request->app_status);
         }
 
         $applications_final = collect($applications)->flatten(1);
@@ -336,6 +344,14 @@ class NewApplicationController extends Controller{
                 if ($application->document_number != null) {
                     $result = $application->document_number;
                 } else {
+                    $result = "---";
+                }
+                return $result;
+            })
+            ->addColumn('new_doc_no', function ($application) {
+                if ($application->document_number != null) {
+                    $result = $application->document_number;
+                }else{
                     $result = "---";
                 }
                 return $result;
@@ -538,7 +554,7 @@ class NewApplicationController extends Controller{
                             $result = "";
                                 // $approvers = $application->esign_approver_details;
                                 if($application->esign_approver_details->count() > 0){
-                                    $approver_list = EsignApprover::where('application_id', $application->id)->where('status', 0)->orderBy('approval_order', 'asc')->first();
+                                    $approver_list = EsignApprover::where('application_id', $application->id)->where('status', 0)->whereNull('deleted_at')->orderBy('approval_order', 'asc')->first();
                                     if($approver_list){
                                         if($approver_list->approver_id == $originator_id || $originator_id == '461'){ //if application is not approved yet
                                             $result .= '<button type="button" class="btn btn-sm btn-block btn-success btn-head-approval" data-toggle="modal" data-target="#modalHeadApprover" title="Review Application" approving-as="2" application-id='.$application->id.' approval_order='.$approver_list->approval_order.' ><i class="fa fa-check-circle"></i> Review Application</button>';
@@ -639,7 +655,7 @@ class NewApplicationController extends Controller{
 
                 return $result;
             })
-            ->rawColumns(['status', 'application_approvers', 'uploaded_file', 'doc_no', 'uploaded_excel_file', 'approver_status', 'action'])
+            ->rawColumns(['status', 'application_approvers', 'uploaded_file', 'doc_no', 'new_doc_no', 'uploaded_excel_file', 'approver_status', 'action'])
             ->make(true);
     }
 
