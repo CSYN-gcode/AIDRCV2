@@ -1344,7 +1344,6 @@ class NewApplicationController extends Controller{
 
         if ($validator->passes()) {
 
-            // return 'true';
             if (count($application_details) > 0) {
                 try {
                     ApplicationRevisions::insert([
@@ -1360,7 +1359,6 @@ class NewApplicationController extends Controller{
                         'created_at' => date('Y-m-d H:i:s'),
                         'updated_at' => date('Y-m-d H:i:s'),
                         'logdel' => 0
-
                     ]);
 
                     if (isset($request->edit_attachment)) {
@@ -1402,6 +1400,21 @@ class NewApplicationController extends Controller{
                             'status' => 1, //Back to Start Status
                         ]);
                     }else{
+                        // ORIGINAL EXCEL FILENAME
+                        if($request->hasFile('edit_attachment_excel')){
+                            $original_filename_excel = $request->file('edit_attachment_excel')->getClientOriginalName();
+                            $file_extension_excel = $request->file('edit_attachment_excel')->getClientOriginalExtension();
+
+                            //FILENAME EXCEL CLARK 02/07/2025
+                            $generated_filename_excel = "excel_aidrc_attachment_" . date('YmdHis');
+                            $aidrc_filename_excel = $generated_filename_excel . "." . $file_extension_excel;
+
+                            Storage::putFileAs('public/file_attachments', $request->edit_attachment_excel, $aidrc_filename_excel);
+                        }else{
+                            $original_filename_excel = '';
+                            $aidrc_filename_excel = '';
+                        }
+
                         Applications::where('id', $request->view_application_id)->update([
 
                             'document_category' => $request->view_doc_category,
@@ -1409,6 +1422,8 @@ class NewApplicationController extends Controller{
                             'originator_remarks' => $request->view_remarks,
 
                             'application_section_head' => $request->view_section_head_approver,
+                            'aidrc_excel_filename' => $aidrc_filename_excel,
+                            'excel_filename' => $original_filename_excel,
                             // 'application_prod_head' => $request->view_production_head,
                             // 'application_qc_head' => $request->view_qc_head,
                             // 'application_eng_head' => $request->view_eng_head,

@@ -232,6 +232,7 @@ $layout = 'layouts.user_layout';
                                         <option value="7">CP</option>
                                         <option value="8">IG</option>
                                         <option value="9">Others</option>
+                                        <option value="10">JD</option>
                                     </select>
 
                                 </div>
