@@ -24,7 +24,7 @@ class Applications extends Model
     protected $connection = "mysql";
 
     public function esign_approver_details(){
-        return $this->hasMany(EsignApprover::class, 'application_id', 'id');
+        return $this->hasMany(EsignApprover::class, 'application_id', 'id')->whereNull('deleted_at');
     }
 
     public function self_details()
