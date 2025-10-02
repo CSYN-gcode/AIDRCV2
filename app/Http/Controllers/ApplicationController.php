@@ -83,12 +83,12 @@ class ApplicationController extends Controller{
         $rapidx_user_dcc = AccessLevel::where('rapidx_id', $rapidx_user_id)->whereIn('access_level', [1, 2, 6])->orderBy('created_at', 'desc')->first();
 
 
-        if ($rapidx_user_dcc != null) {
+        if ($rapidx_user_dcc != null){
             $applications = Applications::with(['qs_inspector_details', 'section_head_details', 'originator_details', 'affected_documents_details.approver_details', 'affected_documents_details' => function ($query2) {
 
                 $query2->where('logdel', 0)->whereIn('approver_type', [2, 3, 4]);
             }, 'control_details']);
-        } else {
+        }else{
             $applications = Applications::with(['department_details', 'control_details', 'qs_inspector_details', 'section_head_details', 'originator_details', 'affected_documents_details.approver_details', 'affected_documents_details' => function ($query) use ($rapidx_user_id) {
 
                 $query->whereIn('approver_type', [2, 3, 4])->whereIn('document_status', [1, 2, 3, 4]);
