@@ -19,8 +19,8 @@ use App\Http\Controllers\PdfController;
 // });
 
 Route::get('/', function () {
-    return view('test_dashboard');
-})->name('test_dashboard');
+    return view('dashboard');
+})->name('dashboard');
 
 // Route::get('/', function () { //orig code
 //     return view('dashboard');
@@ -165,11 +165,11 @@ Route::get('/check_existing_aidrc_application_new','ApplicationController@check_
 //From New Application Controller
 Route::get('/load_acdcs_documents_table', 'NewApplicationController@load_acdcs_documents_table');
 
-Route::get('/load_acdcs_applications_table_test', 'NewApplicationController@load_acdcs_applications_table_test');
+// Route::get('/load_acdcs_applications_table_test', 'NewApplicationController@load_acdcs_applications_table_test');
 
 Route::post('/submit_new_application', 'NewApplicationController@submit_new_application');
 
-Route::get('/load_acdcs_applications_table','NewApplicationController@load_acdcs_applications_table');
+Route::get('/load_aidrc_applications_table','NewApplicationController@load_aidrc_applications_table');
 
 Route::get('/load_application_details','NewApplicationController@load_application_details');
 

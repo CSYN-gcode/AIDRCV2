@@ -1119,7 +1119,7 @@ function LoadRapidXDepartmentList(cboElement)
       success: function(JsonObject){
           result = '';
           if(JsonObject['departments'].length > 0){
-              result = '<option selected disabled>-- Select One -- </option>';
+              result = '<option selected disabled>-- Select One/More -- </option>';
               for(let index = 0; index < JsonObject['departments'].length; index++){
 
                   result += '<option value="' + JsonObject['departments'][index].department_id + '">' + JsonObject['departments'][index].department_name + '</option>';
@@ -1195,7 +1195,7 @@ function LoadOriginatorList(cboElement)
       success: function(JsonObject){
           result = '';
           if(JsonObject['users'].length > 0){
-              result = '<option selected disabled>-- Select One -- </option>';
+              result = '<option selected disabled>-- Select One/More -- </option>';
               for(let index = 0; index < JsonObject['users'].length; index++){
                   let disabled = '';
 

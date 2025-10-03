@@ -36,10 +36,9 @@ class ApplicationController extends Controller{
         $application = Applications::/*where('application_originator', $rapidx_user_id)->*/where('document_number', $request->document_number)
                         ->where('document_revision_number', $request->revision_number)
                         ->where('logdel', 0)
-                        ->whereNotIn('status', [6, 7, 8, 9])
+                        ->whereNotIn('status', [6, 9])
                         ->count();
                         // ->toSql();
-        return $application;
 
         if ($application > 0){ // with result
             return response()->json(['result' => 1]);
@@ -2011,7 +2010,13 @@ class ApplicationController extends Controller{
         $attachment = Applications::where('id', $request->application_id)->where('logdel', 0)->get();
         $file =  storage_path() . "/app/public/file_attachments/" . $attachment[0]->aidrc_excel_filename;
 
-        return Response::download($file, $attachment[0]->excel_filename);
+        // return Response::download($file, $attachment[0]->excel_filename);
+
+        return Response::download($file, $attachment->excel_filename, [
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma'        => 'no-cache',
+            'Expires'       => '0',
+        ]);
     }
 
     public function send_mailer(Request $request){

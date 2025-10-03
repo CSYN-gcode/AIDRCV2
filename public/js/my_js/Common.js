@@ -531,9 +531,11 @@ function SubmitNewApplication(array_documents){
     	data: formData,
     	dataType: "json",
     	beforeSend: function(){
-    		//$('#btnSubmitApplication').prop('disabled','disabled');
+    		$('#btnSubmitApplication').prop('disabled','disabled');
     	},
     	success: function(JsonObject){
+            $('#btnSubmitApplication').removeAttr('disabled');
+
     		if(JsonObject['result'] == 1){
     			toastr.success('Application Saved Successfully!');
     			$('#modalAddApplication').modal('hide');//clark comment
@@ -636,7 +638,7 @@ function SubmitNewApplication(array_documents){
     		}
     	},
     	error: function(data, xhr, status){
-    		//$('#btnSubmitApplication').removeAttr('disabled');
+    		$('#btnSubmitApplication').removeAttr('disabled');
             toastr.error('An error occured!\n' + 'Data: ' + data + "\n" + "XHR: " + xhr + "\n" + "Status: " + status);
         }
 
@@ -932,10 +934,8 @@ function SubmitHeadApproval(array_documents){
     			dt_applications.draw();
     			dt_head_approval_documents.draw();
 
-   				SendNewMailer(JsonObject['application_id']);//clark comment for now 07/05/2025 (TESTING)
-    		}
-    		else
-    		{
+   				SendNewMailer(JsonObject['application_id'], JsonObject['approval_order']);//clark comment for now 07/05/2025 (TESTING)
+    		}else{
     			toastr.error('Application Review Failed!');
 
     			if(JsonObject['error']['head_approval_remarks'] === undefined)
@@ -1112,6 +1112,7 @@ function LoadViewApplicationDetails(application_id, view_edit){
 				let department = JsonObject['application_details'][0].department;
 				let originator = JsonObject['application_details'][0].application_originator;
 				let created_at = JsonObject['application_details'][0].created_at;
+				let originator_remarks = JsonObject['application_details'][0].originator_remarks;
 
 				if(document_number != null){
 					$('#view_doc_no').val(document_number);
@@ -1129,6 +1130,7 @@ function LoadViewApplicationDetails(application_id, view_edit){
 				$('#view_originator').val(originator);
 				$('#view_created_at').val(created_at);
 				$('#view_application_id').val(application_id);
+				$('#view_remarks').val(originator_remarks);
 
 				if(view_edit == 1){
 					if(application_status == 6 || application_status == 7 || application_status == 8){
@@ -1400,6 +1402,7 @@ function SubmitEditApplication(){
     	data: form_data,
     	dataType: "json",
     	beforeSend: function(){
+            $('#btnSubmitEditApplication').prop('disabled', true);
     	},
     	success: function(JsonObject){
     		if(JsonObject['result'] == 1){
@@ -1586,18 +1589,16 @@ function SubmitEditAffectedDocument(){
 	});
 }
 
-function SendNewMailer(application_id){
+function SendNewMailer(application_id, approval_order = null){
 	$.ajax({
 		url: "send_new_mailer",
 		method: "get",
 		data:
 		{
-			application_id: application_id
+			application_id: application_id,
+			approval_order: approval_order
 		},
 		dataType: "json",
-		beforeSend: function(){
-
-		},
 		success: function(JsonObject){
 			if(JsonObject['result'] == 1){
 				toastr.success('Mail Sent to Recipients!');
