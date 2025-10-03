@@ -21,11 +21,11 @@ xmlns:o="urn:schemas-microsoft-com:office:office"><head><title></title>
         </style>
       <!--[if !mso]>
       <!-->
-      <style type="text/css">
-          @media only screen and (max-width:480px) {
-            @-ms-viewport { width:320px; }
-            @viewport { width:320px; }
-          }
+        <style type="text/css">
+            @media only screen and (max-width:480px) {
+                @-ms-viewport { width:320px; }
+                @viewport { width:320px; }
+            }
         </style>
       <!--
       <![endif]-->
@@ -58,13 +58,13 @@ xmlns:o="urn:schemas-microsoft-com:office:office"><head><title></title>
       }
     </style>
           <style type="text/css"></style>
-          <style type="text/css">.hide_on_mobile { display: none !important;} 
+          <style type="text/css">.hide_on_mobile { display: none !important;}
         @media only screen and (min-width: 480px) { .hide_on_mobile { display: block !important;} }
-        .hide_section_on_mobile { display: none !important;} 
+        .hide_section_on_mobile { display: none !important;}
         @media only screen and (min-width: 480px) { .hide_section_on_mobile { display: table !important;} }
-        .hide_on_desktop { display: block !important;} 
+        .hide_on_desktop { display: block !important;}
         @media only screen and (min-width: 480px) { .hide_on_desktop { display: none !important;} }
-        .hide_section_on_desktop { display: table !important;} 
+        .hide_section_on_desktop { display: table !important;}
         @media only screen and (min-width: 480px) { .hide_section_on_desktop { display: none !important;} }
         [owa] .mj-column-per-100 {
             width: 100%!important;
@@ -83,7 +83,7 @@ xmlns:o="urn:schemas-microsoft-com:office:office"><head><title></title>
               text-decoration: none;
               color: inherit;
           }
-        
+
           @media only print and (min-width:480px) {
             .mj-column-per-100 { width:100%!important; }
             .mj-column-per-40 { width:40%!important; }
@@ -276,7 +276,7 @@ xmlns:o="urn:schemas-microsoft-com:office:office"><head><title></title>
                                                     </span>
                                                   </td>
                                                   <td>
-                                                    <span style="font-size: 12px; font-family: Arial, sans-serif;">{{ $application[0]->head_approval_details[0]->approver_details->name }}</span>
+                                                    <span style="font-size: 12px; font-family: Arial, sans-serif;">{{ $approver_details[0]->user_details->name }}</span>
                                                   </td>
                                                 </tr>
 
@@ -289,7 +289,7 @@ xmlns:o="urn:schemas-microsoft-com:office:office"><head><title></title>
                                                     </span>
                                                   </td>
                                                   <td>
-                                                    <span style="font-size: 12px; font-family: Arial, sans-serif;">{{ $application[0]->head_approval_details[0]->head_approval_remarks }}</span>
+                                                    <span style="font-size: 12px; font-family: Arial, sans-serif;">{{ $approver_details[0]->remarks }}</span>
                                                   </td>
                                                 </tr>
                                               </tbody>
@@ -398,9 +398,7 @@ xmlns:o="urn:schemas-microsoft-com:office:office"><head><title></title>
                 </td>
               </tr>
             </table>
-            <table
-         align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600"
-      >
+            <table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600">
               <tr>
                 <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
                   <![endif]-->
@@ -412,29 +410,27 @@ xmlns:o="urn:schemas-microsoft-com:office:office"><head><title></title>
                             <!--[if mso | IE]>
                             <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                               <tr>
-                                <td
-               class="" style="vertical-align:top;width:600px;"
-            >
+                                <td class="" style="vertical-align:top;width:600px;">
                                   <![endif]-->
-                                  <div class="mj-column-per-100 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
-                                    <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%">
-                                      <tr>
-                                        <td align="left" style="font-size:0px;padding:15px 15px 15px 15px;word-break:break-word;">
-                                          <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:11px;line-height:1.5;text-align:left;color:#000000;">
-                                            <p style="text-align: center;">
-                                              <em>
-                                                <strong>If there are any concerns with the application, call local 129 or the originator.</strong>
-                                              </em>
-                                              <br>&nbsp;
-                                              </p>
-                                              <p style="text-align: justify;">Notice of Disclaimer:
-                                                <br>&nbsp;This message (including any attachments) contains confidential information intended for a specific individual and purpose, and is protected by law. If you are not the intended recipient, you should delete this message. Any disclosure, copying, or distribution of this message, or the taking of any action based on it, is strictly prohibited.
+                                    <div class="mj-column-per-100 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                                        <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%">
+                                        <tr>
+                                            <td align="left" style="font-size:0px;padding:15px 15px 15px 15px;word-break:break-word;">
+                                            <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:11px;line-height:1.5;text-align:left;color:#000000;">
+                                                <p style="text-align: center;">
+                                                <em>
+                                                    <strong>If there are any concerns with the application, call local 129 or the originator.</strong>
+                                                </em>
+                                                <br>&nbsp;
                                                 </p>
-                                              </div>
-                                            </td>
-                                          </tr>
-                                        </table>
-                                      </div>
+                                                <p style="text-align: justify;">Notice of Disclaimer:
+                                                    <br>&nbsp;This message (including any attachments) contains confidential information intended for a specific individual and purpose, and is protected by law. If you are not the intended recipient, you should delete this message. Any disclosure, copying, or distribution of this message, or the taking of any action based on it, is strictly prohibited.
+                                                    </p>
+                                                </div>
+                                                </td>
+                                            </tr>
+                                            </table>
+                                        </div>
                                       <!--[if mso | IE]>
                                     </td>
                                   </tr>

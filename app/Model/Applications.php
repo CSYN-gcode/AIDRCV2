@@ -37,7 +37,6 @@ class Applications extends Model
     	return $this->hasOne(RapidXUser::class, 'id', 'application_originator');
     }
 
-
     public function section_head_details()
     {
     	return $this->hasOne(RapidXUser::class, 'id', 'application_section_head');

@@ -214,7 +214,7 @@ class NewApplicationController extends Controller{
         return 1;
     }
 
-    public function load_acdcs_applications_table_test(Request $request){
+    public function load_aidrc_applications_table(Request $request){
         session_start();
         $originator_id = $_SESSION['rapidx_user_id'];
         $rapidx_user_dcc = RapidXUser::whereIn('department_id', [21, 22, 23, 1])->where('id', $originator_id)->get();
@@ -328,7 +328,8 @@ class NewApplicationController extends Controller{
             })
             ->addColumn('application_datetime', function ($application) {
                 $result = $application->created_at;
-                return $result;
+                $formatted = date("M j, Y g:i A", strtotime($application->created_at));
+                return $formatted;
             })
             ->addColumn('originator', function ($application) {
                 // $result = '';
@@ -349,8 +350,8 @@ class NewApplicationController extends Controller{
                 return $result;
             })
             ->addColumn('new_doc_no', function ($application) {
-                if ($application->document_number != null) {
-                    $result = $application->document_number;
+                if ($application->new_doc_number != null) {
+                    $result = $application->new_doc_number;
                 }else{
                     $result = "---";
                 }
@@ -450,15 +451,19 @@ class NewApplicationController extends Controller{
                     case 4: { //Application Approved, For Approval of Sections Heads
                             if($application->esign_approver_details && count($application->esign_approver_details) > 0){
                                 foreach ($application->esign_approver_details AS $esign_approver) {
+                                    $message = '';
                                     if($esign_approver->status == 1){
                                         $badge = 'badge-success';
+                                        $message .= 'Date: ';
+                                        $formatted = date("M j, Y g:i A", strtotime($esign_approver->updated_at));
+                                        $message .= $formatted;
                                     }elseif($esign_approver->status == 2){
                                         $badge = 'badge-danger';
                                     }else{
                                         $badge = 'badge-primary';
                                     }
 
-                                    $result .= '<br><span class="badge '.$badge.'">APPROVER #'. $esign_approver->approval_order. ': ' .$esign_approver->user_details->name . '</span>';
+                                    $result .= '<br><span class="badge '.$badge.'">APPROVER #'. $esign_approver->approval_order. ': '.$esign_approver->user_details->name.'<br>'.$message.'</span>';
                                 }
                             }else{
                                     $result .= '<br><span class="badge badge-secondary">No Approvers</span>';
@@ -468,6 +473,7 @@ class NewApplicationController extends Controller{
                     case 5: { //Disapproved
                             if($application->esign_approver_details && count($application->esign_approver_details) > 0){
                                 foreach ($application->esign_approver_details AS $esign_approver) {
+                                    $message = '';
                                     if($esign_approver->status == 1){
                                         $badge = 'badge-success';
                                     }elseif($esign_approver->status == 2){
@@ -475,8 +481,11 @@ class NewApplicationController extends Controller{
                                     }else{
                                         $badge = 'badge-primary';
                                     }
+                                    $message .= 'Date: ';
+                                    $formatted = date("M j, Y g:i A", strtotime($esign_approver->updated_at));
+                                    $message .= $formatted;
 
-                                    $result .= '<br><span class="badge '.$badge.'">APPROVER #'. $esign_approver->approval_order. ': ' .$esign_approver->user_details->name . '</span>';
+                                    $result .= '<br><span class="badge '.$badge.'">APPROVER #'. $esign_approver->approval_order. ': ' .$esign_approver->user_details->name.'<br>'.$message.'</span>';
                                 }
                             }else{
                                     $result .= '<br><span class="badge badge-secondary">No Approvers</span>';
@@ -486,7 +495,11 @@ class NewApplicationController extends Controller{
                     case 6: { //Cancelled
                             if($application->esign_approver_details && count($application->esign_approver_details) > 0){
                                 foreach ($application->esign_approver_details AS $esign_approver) {
+                                    $message = '';
                                     $result .= '<br><span class="badge badge-warning">APPROVER #'. $esign_approver->approval_order. ': ' .$esign_approver->user_details->name . '</span>';
+                                    $message .= 'Date: ';
+                                    $formatted = date("M j, Y g:i A", strtotime($esign_approver->updated_at));
+                                    $message .= $formatted;
                                 }
                             }else{
                                     $result .= '<br><span class="badge badge-secondary">No Approvers</span>';
@@ -496,7 +509,11 @@ class NewApplicationController extends Controller{
                     case 7: { //Completed - FOR Edit PDF
                             if($application->esign_approver_details && count($application->esign_approver_details) > 0){
                                 foreach ($application->esign_approver_details AS $esign_approver) {
+                                    $message = '';
                                     $result .= '<span class="badge badge-success">APPROVER #'. $esign_approver->approval_order. ': ' .$esign_approver->user_details->name . '</span><br>';
+                                    $message .= 'Date: ';
+                                    $formatted = date("M j, Y g:i A", strtotime($esign_approver->updated_at));
+                                    $message .= $formatted;
                                 }
                             }else{
                                 $result .= '<br><span class="badge badge-secondary">No Approvers</span>';
@@ -506,7 +523,11 @@ class NewApplicationController extends Controller{
                     case 8: { //Completed - FOR UPLOAD TO ACDCS
                             if($application->esign_approver_details && count($application->esign_approver_details) > 0){
                                 foreach ($application->esign_approver_details AS $esign_approver) {
+                                    $message = '';
                                     $result .= '<span class="badge badge-success">APPROVER #'. $esign_approver->approval_order. ': ' .$esign_approver->user_details->name . '</span><br>';
+                                    $message .= 'Date: ';
+                                    $formatted = date("M j, Y g:i A", strtotime($esign_approver->updated_at));
+                                    $message .= $formatted;
                                 }
                             }else{
                                     $result .= '<br><span class="badge badge-secondary">No Approvers</span>';
@@ -898,6 +919,9 @@ class NewApplicationController extends Controller{
 
     // ESIGNATURE APPROVAL
     public function submit_new_head_approval(Request $request){
+        // return $request->head_application_id;
+        // return response()->json(['result' => 1, 'application_id' => $request->head_application_id, 'approval_order' => $request->approval_order]);
+
         session_start();
         date_default_timezone_set('Asia/Manila');
 
@@ -975,7 +999,7 @@ class NewApplicationController extends Controller{
                     }
 
                     DB::commit();
-                    return response()->json(['result' => 1, 'application_id' => $request->head_application_id]);
+                    return response()->json(['result' => 1, 'application_id' => $request->head_application_id, 'approval_order' => $request->approval_order]);
                 }catch (\Exception $e) {
                     DB::rollback();
                     throw $e;
@@ -1355,12 +1379,10 @@ class NewApplicationController extends Controller{
             'view_doc_category' => 'required',
             'view_doc_title' => 'required',
         ]);
-
         $application_details = Applications::where('id', $request->view_application_id)->where('logdel', 0)->get();
 
         if ($validator->passes()) {
 
-            // return 'true';
             if (count($application_details) > 0) {
                 try {
                     ApplicationRevisions::insert([
@@ -1908,9 +1930,19 @@ class NewApplicationController extends Controller{
             $query->where('logdel', 0)->orderBy('created_at', 'desc');
         }, 'application_revision_details'])->where('id', $request->application_id)->where('logdel', 0)->get();
 
-        $data = ['application' => $application];
+        if(isset($request->approval_order) && isset($request->application_id)){
+            $approver_details = EsignApprover::with(['user_details'])->where('approval_order', $request->approval_order)->where('application_id', $request->application_id)->get();
+        }else{
+            $approver_details = [];
+        }
+        // return $test;
+        // approval_order
+        // return $approver_details;
+        $data = ['application' => $application, 'approver_details' => $approver_details];
 
-        if (count($application) > 0) {
+        // $application[0]->status = 5;
+
+        if(count($application) > 0){
             switch ($application[0]->status) {
                 case 1: {
                         $send_to = ['dmmarmol@pricon.ph', 'stomela@pricon.ph', 'nvquidlat@pricon.ph'];
@@ -2008,7 +2040,7 @@ class NewApplicationController extends Controller{
                     }
             }
             return response()->json(['result' => 1]);
-        } else {
+        }else{
             return response()->json(['result' => 2]);
         }
     }

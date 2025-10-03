@@ -17,7 +17,8 @@ class CreateApplicationsTable extends Migration
             $table->bigIncrements('id');
 
             $table->string('aidrc_control_number');
-            $table->string('document_number')->nullable();
+            $table->string('document_number');
+            $table->string('new_doc_number')->nullable();
             $table->string('document_name');
             $table->integer('document_revision_number');
             $table->integer('document_category');
