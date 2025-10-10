@@ -2010,9 +2010,14 @@ class ApplicationController extends Controller{
         $attachment = Applications::where('id', $request->application_id)->where('logdel', 0)->get();
         $file =  storage_path() . "/app/public/file_attachments/" . $attachment[0]->aidrc_excel_filename;
 
+        // if (file_exists($file)){
+        //     return 'true';
+        // }else{
+        //     return 'false';
+        // }
         // return Response::download($file, $attachment[0]->excel_filename);
 
-        return Response::download($file, $attachment->excel_filename, [
+        return Response::download($file, $attachment[0]->excel_filename, [
             'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
             'Pragma'        => 'no-cache',
             'Expires'       => '0',
