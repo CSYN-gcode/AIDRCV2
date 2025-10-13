@@ -184,7 +184,7 @@ $layout = 'layouts.user_layout';
                                                 <span class="input-group-text w-100" id="basic-addon1">CATEGORY</span>
                                             </div>
                                             <input type="hidden" id="hidden_check_category" name="hidden_check_category">
-                                            <select class="form-control select2bs5" id="filter_category" multiple name="filter_category[]" disabled>
+                                            <select class="form-control sel-category-list" id="filter_category" multiple name="filter_category[]" disabled>
                                                 <option value="0" selected disabled>-- Select One/More --</option>
                                                 <option value="1">PGS</option>
                                                 <option value="2">PQS</option>
@@ -220,7 +220,7 @@ $layout = 'layouts.user_layout';
                                                 <span class="input-group-text w-100" id="basic-addon1">STATUS</span>
                                             </div>
                                             <input type="hidden" id="hidden_check_app_status" name="hidden_check_app_status">
-                                            <select class="form-control select2bs5" id="filter_app_status" multiple name="filter_app_status[]" disabled>
+                                            <select class="form-control sel-status-list" id="filter_app_status" multiple name="filter_app_status[]" disabled>
                                                 <option value="0" selected disabled>-- Select One/More --</option>
                                                 <option value="1">DCC Validation</option>
                                                 <option value="2">Minor Revisions</option>
@@ -1868,6 +1868,17 @@ $layout = 'layouts.user_layout';
                                                                         <option value="7">CP</option>
                                                                         <option value="8">IG</option>
                                                                         <option value="9">Others</option>
+                                                                        <option value="10">IMS</option>
+                                                                        <option value="11">QMS</option>
+                                                                        <option value="12">EMS</option>
+                                                                        <option value="13">SEI</option>
+                                                                        <option value="14">FORMS</option>
+                                                                        <option value="15">IG</option>
+                                                                        <option value="16">VIG</option>
+                                                                        <option value="17">DIG</option>
+                                                                        <option value="18">PIG</option>
+                                                                        <option value="19">PRR</option>
+                                                                        <option value="20">JD</option>
                                                                     </select>
                                                                 </div>
                                                             </div>
@@ -3212,6 +3223,14 @@ $layout = 'layouts.user_layout';
             });
 
             $('.sel-rapidx-department-list-2').select2({
+                theme: "bootstrap4",
+            });
+
+            $('.sel-category-list').select2({
+                theme: "bootstrap4",
+            });
+
+            $('.sel-status-list').select2({
                 theme: "bootstrap4",
             });
 

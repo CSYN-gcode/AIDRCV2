@@ -776,6 +776,7 @@ class NewApplicationController extends Controller{
                 'add_for_group' => 'required',
                 'add_department' => 'required',
                 'add_doc_title' => 'required',
+                'add_attachment_excel' => 'required',
             ]);
         }else{ // REVISION
             $validator = Validator::make($request->all(), [
@@ -787,6 +788,7 @@ class NewApplicationController extends Controller{
                 'add_doc_title' => 'required',
                 'add_doc_title' => 'required',
                 'add_doc_rev_no' => 'required',
+                'add_attachment_excel' => 'required',
             ]);
         }
 
