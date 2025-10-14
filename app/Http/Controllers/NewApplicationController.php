@@ -494,6 +494,10 @@ class NewApplicationController extends Controller{
                                         $message .= $formatted;
                                     }elseif($esign_approver->status == 2){
                                         $badge = 'badge-danger';
+
+                                        $message .= 'Date: ';
+                                        $formatted = date("M j, Y g:i A", strtotime($esign_approver->updated_at));
+                                        $message .= $formatted;
                                     }else{
                                         $badge = 'badge-secondary';
                                     }
