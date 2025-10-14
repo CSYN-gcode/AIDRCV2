@@ -2295,7 +2295,7 @@ $layout = 'layouts.user_layout';
                             <div class="tab-pane fade" id="editApprover" role="tabpanel" aria-labelledby="editApprover-tab">
                                 <h5>Select Approver & Assign Position of E-signature</h5>
                                 <!-- Button to generate a new row -->
-                                <button type="button" class="btn btn-success" id="editApproverButton" data-filepath>Add Approver</button>
+                                <button type="button" class="btn btn-success" id="editApproverButton" data-filepath disabled>Add Approver</button>
 
                                 <!-- Table to append rows to -->
                                 <table class="table table-bordered mt-3" id="editApproverTable">
@@ -3643,6 +3643,8 @@ $layout = 'layouts.user_layout';
             let view_edit = $(this).attr('view-edit');
 
             $('#uploadTab a[href="#editHome"]').tab('show');
+            // $('#editApproverTable tbody').find('.previewPdfButton').prop('disabled', true);
+            // $('#editApproverTable tbody').find('.editApproverDeleteRow').prop('disabled', true);
             LoadViewApplicationDetails(application_id, view_edit);
         });
 
@@ -3670,6 +3672,10 @@ $layout = 'layouts.user_layout';
             $('#view_qs_inspector').removeAttr('disabled');
             $('#view_section_head_approver').removeAttr('disabled');
             $('.view_approver_priority').removeAttr('disabled');
+
+            $('#editApproverButton').prop('disabled', false);
+            $('#editApproverTable tbody').find('.previewPdfButton').prop('disabled', false);
+            $('#editApproverTable tbody').find('.editApproverDeleteRow').prop('disabled', false);
         });
 
         $('#modalViewApplication').on('hidden.bs.modal', function() {
@@ -3711,6 +3717,10 @@ $layout = 'layouts.user_layout';
             $('#view_qs_inspector').prop('disabled', 'disabled');
             $('#view_section_head_approver').prop('disabled', 'disabled');
             $('.view_approver_priority').prop('disabled', 'disabled');
+
+            $('#editApproverButton').prop('disabled', true);
+            $('#editApproverTable tbody').find('.previewPdfButton').prop('disabled', true);
+            $('#editApproverTable tbody').find('.editApproverDeleteRow').prop('disabled', true);
         });
 
         $('#btnSubmitEditApplication').click(function() {

@@ -74,7 +74,7 @@ $(document).ready(function(){
         });
     });
 
-    // Use jQuery to monitor checkbox changes and disable/enable buttons
+    // Use to monitor checkbox changes and disable/enable buttons
     $(document).on('change', '.disableButtonsCheckbox', function () {
         var row = $(this).closest('tr');
         var isChecked = $(this).is(':checked');

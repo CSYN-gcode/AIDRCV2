@@ -450,7 +450,7 @@ class NewApplicationController extends Controller{
                         }
                     case 4: { //Application Approved, For Approval of Sections Heads
                             if($application->esign_approver_details && count($application->esign_approver_details) > 0){
-                                foreach ($application->esign_approver_details AS $esign_approver) {
+                                foreach ($application->esign_approver_details AS $esign_approver){
                                     $message = '';
                                     if($esign_approver->status == 1){
                                         $badge = 'badge-success';
@@ -460,7 +460,19 @@ class NewApplicationController extends Controller{
                                     }elseif($esign_approver->status == 2){
                                         $badge = 'badge-danger';
                                     }else{
-                                        $badge = 'badge-primary';
+                                        // Find the minimum approval_order among pending approvers
+                                        $pendingApprovers = collect($application->esign_approver_details)
+                                                        ->filter(function ($item){
+                                                            return $item->status == 0 && is_null($item->deleted_at);
+                                                        });
+
+                                        // get the approver with the smallest approval_order
+                                        $currentApprover = $pendingApprovers->sortBy('approval_order')->first();
+                                        if($esign_approver->approval_order == $currentApprover->approval_order){
+                                            $badge = 'badge-primary';
+                                        }else{
+                                            $badge = 'badge-secondary';
+                                        }
                                     }
 
                                     $result .= '<br><span class="badge '.$badge.'">APPROVER #'. $esign_approver->approval_order. ': '.$esign_approver->user_details->name.'<br>'.$message.'</span>';
@@ -476,14 +488,15 @@ class NewApplicationController extends Controller{
                                     $message = '';
                                     if($esign_approver->status == 1){
                                         $badge = 'badge-success';
+
+                                        $message .= 'Date: ';
+                                        $formatted = date("M j, Y g:i A", strtotime($esign_approver->updated_at));
+                                        $message .= $formatted;
                                     }elseif($esign_approver->status == 2){
                                         $badge = 'badge-danger';
                                     }else{
-                                        $badge = 'badge-primary';
+                                        $badge = 'badge-secondary';
                                     }
-                                    $message .= 'Date: ';
-                                    $formatted = date("M j, Y g:i A", strtotime($esign_approver->updated_at));
-                                    $message .= $formatted;
 
                                     $result .= '<br><span class="badge '.$badge.'">APPROVER #'. $esign_approver->approval_order. ': ' .$esign_approver->user_details->name.'<br>'.$message.'</span>';
                                 }

@@ -1146,7 +1146,6 @@ function LoadViewApplicationDetails(application_id, view_edit){
                 $('#editApproverRemarks').removeClass('d-none');
 
                 $('#edit_attachment').data('application-id', application_id);
-                console.log('testval', $('#edit_attachment').data('application-id'));
 
                 if($('#edit_attachment')[0].files.length > 0){
                     // Detect uploaded file (if any)
@@ -1204,8 +1203,8 @@ function LoadViewApplicationDetails(application_id, view_edit){
                                 <td id="status-${row.approval_order}">${status}</td>
                                 <td id="remarks-${row.approval_order}">${remarks}</td>
                                 <td>
-                                    <button type="button" class="btn btn-primary btn-sm previewPdfButton" data-row="${row.approval_order}" data-file-url="${filePath}">Preview PDF</button>
-                                    <button type="button" class="btn btn-danger btn-sm editApproverDeleteRow">Delete</button>
+                                    <button disabled type="button" class="btn btn-primary btn-sm previewPdfButton" data-row="${row.approval_order}" data-file-url="${filePath}">Preview PDF</button>
+                                    <button disabled type="button" class="btn btn-danger btn-sm editApproverDeleteRow">Delete</button>
                                 </td>
                             </tr>
                         `;
