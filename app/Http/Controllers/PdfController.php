@@ -177,6 +177,9 @@ class PdfController extends Controller
     }
 
     public function savePdfPatchData(Request $request) {
+        session_start();
+        date_default_timezone_set('Asia/Manila');
+
         $applicationId = $request->application_id;
         // return $applicationId;
         $rawData = $request->input('additionalData');
@@ -221,9 +224,10 @@ class PdfController extends Controller
         }
     }
 
-    public function download_attached_document_new(Request $request){
+    public function download_attached_document_new(Request $request, $category = null) {
         $application = Applications::with([
-            'esign_approver_details.user_details'
+            'esign_approver_details.user_details',
+            'external_app_details'
         ])
         ->where('id', $request->application_id)
         ->where('logdel', 0)
@@ -235,14 +239,19 @@ class PdfController extends Controller
 
         $approvers = $application->esign_approver_details;
         $patchData = PatchDataPdf::where('application_id', $request->application_id)->whereNull('deleted_at')->get();
-        // return $patchData;
-        $filename = str_replace('modified_', '', $application->aidrc_filename);
+
+        if($category == 'orig_pdf' && $application->external_app_details){
+            $documentName = $application->external_app_details->aidrc_filename;
+        }else{
+            $documentName = $application->aidrc_filename;
+        }
+
+        // $filename = str_replace('modified_', '', $application->aidrc_filename); clark comment 10/24/2025
+        $filename = str_replace('modified_', '', $documentName);
         $filePath = storage_path("app/public/file_attachments/{$filename}");
-        // return $filePath;
         // Convert PDF to compatible format
         $compatibleFile = $this->convertPdfToCompatible($filePath);
 
-        // Load PDF
         // $pdf = new \setasign\Fpdi\Fpdi('P', 'mm', 'A4');
         $pdf = new Fpdi('P', 'mm', 'A4'); // mm unit
 
@@ -366,9 +375,6 @@ class PdfController extends Controller
                 'aidrc_filename' => $generated_filename,
                 'updated_at' => $date_now,
             ]);
-            // Update DB
-            // $application->aidrc_filename = $generated_filename;
-            // $application->save();
 
             return response()->json([
                 'result' => 1,
@@ -377,29 +383,15 @@ class PdfController extends Controller
             ]);
         }
 
-        // // 📄 Condition for saving to file
-        // if ($request->has('save_to_storage') && $request->save_to_storage == true) {
-        //     $generated_filename = "modified_" . date('YmdHis') . ".pdf";
-        //     $savePath = storage_path('app/public/file_attachments/' . $generated_filename);
-
-        //     $pdf->Output($savePath, 'F');
-
-        //     // Update your DB
-        //     $application->aidrc_filename = $generated_filename;
-        //     $application->save();
-
-        //     return response()->json([
-        //         'message' => 'PDF saved successfully.',
-        //         'saved_filename' => $generated_filename,
-        //     ]);
-        // }
-
         // 📄 Default behavior: Stream to browser
         return response()->stream(function () use ($pdf) {
             $pdf->Output('', 'I');
         }, 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="previewed_document.pdf"',
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma'        => 'no-cache',
+            'Expires'       => '0',
         ]);
     }
 

@@ -261,9 +261,7 @@ $layout = 'layouts.user_layout';
                                 <div class="row">
                                     <div class="col">
                                         <div class="dt-responsive table-responsive">
-                                            <table id="tbl_applications"
-                                                class="table table-sm table-bordered table-striped table-hover"
-                                                style="width: 100%; font-size: 85%;">
+                                            <table id="tbl_applications" class="table table-sm table-bordered table-striped table-hover" style="width: 100%; font-size: 85%;">
                                                 <thead>
                                                     <tr>
                                                         <th>Action</th>
@@ -328,6 +326,22 @@ $layout = 'layouts.user_layout';
                             <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                                 <div class="row">
                                     <div class="col-sm-7">
+                                        <!--APPLICATION TYPE-->
+                                        {{-- <div class="row">
+                                            <div class="col">
+                                                <div class="input-group input-group-sm mb-3">
+                                                    <div class="input-group-prepend w-50">
+                                                        <span class="input-group-text w-100" id="basic-addon1">APPLICATION TYPE</span>
+                                                    </div>
+
+                                                    <select class="form-control" id="add_application_type" name="add_application_type">
+                                                        <option value="1">Internal (Normal)</option>
+                                                        <option value="2">External (With YEC Approval)</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div> --}}
+
                                         <!--PDF ATTACHMENT-->
                                         <div class="row">
                                             <div class="col">
@@ -466,6 +480,20 @@ $layout = 'layouts.user_layout';
                                                                 <strong> Document requires an E-Signature </strong>
                                                             </label>
                                                         </div>
+                                                        <br>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" name="application_type" id="application_type" value="2" style="height: 20px; width: 20px;">
+                                                            <label class="form-check-label ml-1" for="application_type">
+                                                                <strong> Document requires YEC Approval </strong>
+                                                            </label>
+                                                        </div>
+                                                        {{-- <br>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" id="withYECApproval" style="height: 20px; width: 20px;" disabled>
+                                                            <label class="form-check-label ml-1" for="withYECApproval">
+                                                                <strong> Document requires YEC Approval </strong>
+                                                            </label>
+                                                        </div> --}}
                                                     </div>
                                                 </div>
                                             </div>
@@ -1807,8 +1835,12 @@ $layout = 'layouts.user_layout';
                             <li class="nav-item">
                                 <a class="nav-link active" id="editHome-tab" data-toggle="tab" href="#editHome" role="tab" aria-controls="editHome" aria-selected="true">Document Details</a>
                             </li>
-                            <li class="nav-item">
+                            <li class="nav-item" id="viewApproverTab">
                                 <a class="nav-link disabled" id="editApprover-tab" data-toggle="tab" href="#editApprover" role="tab" aria-controls="editApprover" aria-selected="false">Set Approver w/ E-sign</a>
+                            </li>
+                            {{-- TESTING --}}
+                            <li class="nav-item d-none" id="viewExternalTab">
+                                <a class="nav-link" id="viewExternalApp-tab" data-toggle="tab" href="#viewExternalApp" role="tab" aria-controls="viewExternalApp" aria-selected="false">External Application</a>
                             </li>
                         </ul>
 
@@ -1837,6 +1869,21 @@ $layout = 'layouts.user_layout';
                                                     </div>
 
                                                     <div class="card-body">
+                                                        <!--APPLICATION TYPE-->
+                                                        {{-- <div class="row">
+                                                            <div class="col">
+                                                                <div class="input-group input-group-sm mb-3">
+                                                                    <div class="input-group-prepend w-50">
+                                                                        <span class="input-group-text w-100" id="basic-addon1">APPLICATION TYPE</span>
+                                                                    </div>
+
+                                                                    <select class="form-control" id="view_application_type" name="view_application_type" disabled>
+                                                                        <option value="1">Internal (Normal)</option>
+                                                                        <option value="2">External (With YEC Approval)</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </div> --}}
 
                                                         <!--CONTROL NUMBER-->
                                                         <div class="row">
@@ -2176,6 +2223,13 @@ $layout = 'layouts.user_layout';
                                                                 <strong> Document requires an E-Signature </strong>
                                                             </label>
                                                         </div>
+                                                        <br>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" name="view_application_type" id="view_application_type" value="2" style="height: 20px; width: 20px;">
+                                                            <label class="form-check-label ml-1" for="view_application_type">
+                                                                <strong> Document requires YEC Approval </strong>
+                                                            </label>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -2306,6 +2360,7 @@ $layout = 'layouts.user_layout';
                                             <th>Page #</th>
                                             <th>Coordinates</th>
                                             <th id="editApproverStatus" class='d-none'>Status</th>
+                                            <th id="editDateApproved" class='d-none'>Date Approved</th>
                                             <th id="editApproverRemarks" class='d-none'>Remarks</th>
                                             <th id="editApproverAction">Actions</th>
                                         </tr>
@@ -2314,6 +2369,72 @@ $layout = 'layouts.user_layout';
                                         <!-- New rows will be appended here -->
                                     </tbody>
                                 </table>
+                            </div>
+
+                            <!-- Generate Row tab -->
+                            <div class="tab-pane fade" id="viewExternalApp" role="tabpanel" aria-labelledby="viewExternalApp-tab">
+                                <div class="row">
+                                    <div class="col-sm-6 mx-auto">
+                                        <div class="card card-primary">
+                                            <div class="card-header">
+                                                <h5>Original Document (Before Reupload)</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <!--PDF ATTACHMENT-->
+                                                <div class="form-group">
+                                                    <div class="form-control-label" id="OrigPdfAttachmentDiv">
+                                                        <label class="form-control-label">PDF ATTACHMENT</label>
+                                                    </div>
+                                                    <input type="text" class="form-control form-control-sm" id="txtViewOrigPdf" disabled>
+                                                </div>
+
+                                                <!--RAW ATTACHMENT-->
+                                                <div class="form-group">
+                                                    <div class="form-control-label" id="OrigRawAttachmentDiv">
+                                                        <label class="form-control-label">RAW ATTACHMENT</label>
+                                                    </div>
+                                                    <input type="text" class="form-control form-control-sm" id="txtViewOrigRaw" disabled>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 mx-auto">
+                                        <div class="card card-primary">
+                                            <div class="card-header">
+                                                <h5>Revised Document (After Reupload)</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <!--PDF ATTACHMENT-->
+                                                <div class="form-group">
+                                                    <div class="form-control-label" id="ExternalPdfAttachmentDiv">
+                                                        <label class="form-control-label">PDF ATTACHMENT (PDF Only)</label>
+                                                    </div>
+                                                    <input type="text" class="form-control form-control-sm" id="txtViewExternalPdf" disabled>
+                                                 </div>
+
+                                                <!--RAW ATTACHMENT-->
+                                                <div class="form-group">
+                                                    <div class="form-control-label" id="ExternalRawAttachmentDiv">
+                                                        <label class="form-control-label">RAW ATTACHMENT (Excel/Word File)</label>
+                                                    </div>
+                                                    <input type="text" class="form-control form-control-sm" id="txtViewExternalRaw" disabled>
+                                                </div>
+
+                                                <!--Remarks-->
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="input-group input-group-sm mb-3">
+                                                            <div class="input-group-prepend w-50">
+                                                                <span class="input-group-text w-100" id="basic-addon1">ORIGINATOR REMARKS</span>
+                                                            </div>
+                                                            <textarea class="form-control" id="txtViewReuploadRemarks" rows="3" disabled></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="row view-edit">
@@ -2821,10 +2942,85 @@ $layout = 'layouts.user_layout';
         </div>
     <!-- Confirm to proceed MODAL END -->
 
+    <div class="modal fade" id="modalAddExternalApplication">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"><i class="fa fa-edit"></i> Reupload External Application</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <form id="formAddExternalApplication">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <input type="hidden" class="form-control form-control-sm" id="txtApplicationIdForExternalApp" name="application_id_external_app">
+                                <input type="hidden" class="form-control form-control-sm" id="txtExternalApplicationId" name="external_application_id">
+                                <input type="hidden" class="form-control form-control-sm" id="txtApplicationControlNo" name="application_control_number">
+
+                                <!--PDF ATTACHMENT-->
+                                <div class="form-group">
+                                    <div class="form-control-label" id="PdfAttachmentDiv">
+                                        <label class="form-control-label">PDF ATTACHMENT (PDF Only)</label>
+                                    </div>
+                                        <input type="file" class="form-control" id="reupload_attachment" name="reupload_attachment" accept=".pdf">
+                                        <input type="text" class="form-control form-control-sm d-none" name="reupload_attachment_pdf_name" id="txtEditUploadedFilePdf" readonly>
+                                        <div class="form-group form-check d-none m-0" id="btnReuploadTriggerDivPdf">
+                                            <input type="checkbox" class="form-check-input d-none" id="btnReuploadTriggerPdf">
+                                            <label class="d-none" id="btnReuploadTriggerLabelPdf"> Re-upload Attachment</label>
+                                        </div>
+                                </div>
+
+                                <!--RAW ATTACHMENT-->
+                                <div class="form-group">
+                                    <div class="form-control-label" id="RawAttachmentDiv">
+                                        <label class="form-control-label">RAW ATTACHMENT (Excel/Word File)</label>
+                                    </div>
+                                        <input type="file" class="form-control" id="reupload_attachment_raw" name="reupload_attachment_raw" accept=".xlsx, .csv, .docx, .doc">
+                                        <input type="text" class="form-control form-control-sm d-none" name="reupload_attachment_raw_name" id="txtEditUploadedFileRaw" readonly>
+                                        <div class="form-group form-check d-none m-0" id="btnReuploadTriggerDivRaw">
+                                            <input type="checkbox" class="form-check-input d-none" id="btnReuploadTriggerRaw">
+                                            <label class="d-none" id="btnReuploadTriggerLabelRaw"> Re-upload RAW Attachment</label>
+                                        </div>
+                                </div>
+
+                                <!--Remarks-->
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <div class="input-group-prepend w-50">
+                                                <span class="input-group-text w-100" id="basic-addon1">ORIGINATOR REMARKS</span>
+                                            </div>
+                                            <textarea class="form-control" id="reupload_remarks" name="reupload_remarks" rows="3" placeholder="(Optional)"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-primary" id="btnSaveDraftExternalApplication">
+                        <i class="fa fa-check-circle"></i> Save to Drafts
+                    </button>
+
+                    <button type="button" class="btn btn-sm btn-success" id="btnSubmitExternalApplication">
+                        <i class="fa fa-upload"></i> Submit Application
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 @section('js_content')
     <script type="text/javascript">
         let arrayAffectedDocuments = [];
+        // let dt_applications;
+        let currentType = 1; // 1 = internal (default), 2 = external
 
         $(document).ready(function(){
             let editPdfFile = null;
@@ -2832,6 +3028,7 @@ $layout = 'layouts.user_layout';
             let currentTextToPlace = '';
             let currentFontSizeToPlace = '';
             let currentRow = null; // To track which row will get the coordinates
+            let ExternalApplicationSubmitMode = '';
 
             $(document).on('click', '.btnSubmitNewApplication', function(){
                 let application_id = $(this).attr('application-id');
@@ -2896,11 +3093,15 @@ $layout = 'layouts.user_layout';
                     },
                     dataType: "json",
                     success: function (response) {
-                        $('#txtApplicationId').val(application_id);
-                        $('#txtFilePath').val(response.file_path);
-                        $('#txtFileName').val(response.file_name);
-                        $('#viewDataCoordinateTable tbody').empty();
-                        loadPatchData(application_id);
+                        if(response['result'] === 1){
+                            $('#txtApplicationId').val(application_id);
+                            $('#txtFilePath').val(response.file_path);
+                            $('#txtFileName').val(response.file_name);
+                            $('#viewDataCoordinateTable tbody').empty();
+                            loadPatchData(application_id);
+                        }else{
+                            toastr.error('File Not Found!');
+                        }
                     }
                 });
             });
@@ -3280,6 +3481,97 @@ $layout = 'layouts.user_layout';
                 //     { width: '50px', targets: 11 } // 3rd column (0-based index)
                 // ]
             });
+        // console.log('test');
+            // dt_applications = $('#tbl_applications').DataTable({
+            //     processing: true,
+            //     language: {
+            //     "processing": "<div class='text-center'><i class='fa fa-spinner fa-spin'></i> Loading...</div>"
+            //     },
+            //     serverSide: true,
+            //     ajax: {
+            //         url: "load_aidrc_applications_table", // ✅ single route for both
+            //         data: function (param) {
+            //             // dynamic filters
+            //             param.application_type = currentType; // 👈 1 or 2
+            //             param.check_section_department = $('#hidden_check_section_dept').val();
+            //             param.section_department = $('#filter_department').val();
+            //             param.check_originator = $('#hidden_check_originator').val();
+            //             param.originator = $('#filter_originator').val();
+            //             param.check_status = $('#hidden_check_status').val();
+            //             param.status = $('#filter_status').val();
+            //             param.check_category = $('#hidden_check_category').val();
+            //             param.check_app_status = $('#hidden_check_app_status').val();
+            //             param.category = $('#filter_category').val();
+            //             param.app_status = $('#filter_app_status').val();
+            //         }
+            //     },
+            //     columns: [
+            //         { data: "action" },
+            //         { data: "approver_status", width: '50px' },
+            //         { data: "control_number" },
+            //         { data: "status" },
+            //         { data: "application_datetime" },
+            //         { data: "originator" },
+            //         { data: "section_dept" },
+            //         { data: "doc_no" },
+            //         { data: "new_doc_no" },
+            //         { data: "doc_title" },
+            //         { data: "rev_no" },
+            //         { data: "uploaded_file" },
+            //         { data: "original_file_external" },
+            //         { data: "uploaded_excel_file" },
+            //         // { data: "application_type", name: "yec_approved_file" }, // 👈 must have a name!
+            //         { data: "uploaded_file_external" },
+            //         { data: "application_approvers" },
+            //         { data: "originator_remarks" },
+            //     ],
+            //     order: [2, 'desc'],
+            //     initComplete: function() {
+            //         // Hide YEC Approved File (internal tab)
+            //         dt_applications.column(11).visible(true);
+            //         dt_applications.column(12).visible(false);
+            //         dt_applications.column(14).visible(false);
+            //         // Hide the YEC Approved File column by default (for internal)
+            //         // dt_applications.column('yec_approved_file:name').visible(false);
+            //         // Set checkbox checked
+            //         $('#check_filter_status').prop('checked', true);
+            //         $('#check_filter_status').trigger('change'); // safe here
+            //     }
+            // });
+
+            // 🔄 Handle tab switching
+            // $('a[data-toggle="tab"]').on('shown.bs.tab', function (e){
+            // $('#applicationTab button[data-toggle="tab"]').on('click', function (e) {
+            //     // console.log('test222');
+            //     const tabId = $(this).attr('id');
+            //     // const targetId = $(e.target).attr('href'); // "#internal" or "#external"
+            //     if (tabId === 'internal-tab') {
+            //         currentType = 1;
+            //         // dt_applications.column('yec_approved_file:name').visible(false);
+            //         // Hide YEC Approved File (internal tab)
+            //         dt_applications.column(11).visible(true);
+            //         dt_applications.column(12).visible(false);
+            //         dt_applications.column(14).visible(false);
+            //     }else{
+            //         currentType = 2;
+            //         // dt_applications.column('yec_approved_file:name').visible(true);
+            //         // Show YEC Approved File (external tab)
+            //         dt_applications.column(11).visible(false);
+            //         dt_applications.column(12).visible(true);
+            //         dt_applications.column(14).visible(true);
+            //     }
+
+            //     // ⚡ Clear old rows immediately (instant visual update)
+            //     dt_applications.clear().draw();
+
+            //     // 🔁 Reload data for the selected type
+            //     // 🔁 Update URL with query param and reload
+            //     dt_applications.ajax.url(`load_aidrc_applications_table?application_type=${currentType}`).load();
+
+            //     // dt_applications.ajax.reload(null, false);
+            //     // dt_applications.ajax.url("load_aidrc_applications_table?application_type=" + currentType).load();
+            //     // dt_applications.columns.adjust().draw(false);
+            // });
 
             dt_affected_documents = $('#tbl_affected_documents').DataTable({
                 "paging": false,
@@ -3577,6 +3869,21 @@ $layout = 'layouts.user_layout';
             SubmitNewApplication(arrayAffectedDocuments);
         });
 
+        $('#btnSubmitExternalApplication').click(function(){
+            ExternalApplicationSubmitMode = 'Final';
+            $('#formAddExternalApplication').submit();
+        });
+
+        $('#btnSaveDraftExternalApplication').click(function(){
+            ExternalApplicationSubmitMode = 'Draft';
+            $('#formAddExternalApplication').submit();
+        });
+
+        $('#formAddExternalApplication').submit(function(e) {
+            e.preventDefault();
+            SubmitExternalApplication(ExternalApplicationSubmitMode);
+        });
+
         //QS VALIDATION
         $(document).on('click', '.btn-qs-validation', function() {
             let application_id = $(this).attr('application-id');
@@ -3616,6 +3923,108 @@ $layout = 'layouts.user_layout';
         $('#btnHeadDisapproveApplication').click(function() {
             $('#head_approval_status').val(2);
             $('#formHeadApproval').submit();
+        });
+
+        $(document).on('click', '.btn-external-app', function(){
+            let application_id = $(this).attr('application-id');
+            let control_no = $(this).attr('control_no');
+            $('#formAddExternalApplication').find('#txtApplicationIdForExternalApp').val(application_id);
+            $('#formAddExternalApplication').find('#txtApplicationControlNo').val(control_no);
+            $.ajax({
+                type: "get",
+                url: "get_external_application_data",
+                data:
+                {
+                    application_id: application_id
+                },
+                dataType: "json",
+                success: function (response){
+                    let data = response['external_app_data'];
+                    if(response['result'] === 1){
+                        $('#formAddExternalApplication').find("#btnReuploadTriggerDivPdf").removeClass('d-none');
+                        $('#formAddExternalApplication').find("#btnReuploadTriggerPdf").removeClass('d-none');
+                        $('#formAddExternalApplication').find("#btnReuploadTriggerPdf").prop('checked', false);
+                        $('#formAddExternalApplication').find("#btnReuploadTriggerLabelPdf").removeClass('d-none');
+
+                        $('#formAddExternalApplication').find("#btnReuploadTriggerDivRaw").removeClass('d-none');
+                        $('#formAddExternalApplication').find("#btnReuploadTriggerRaw").removeClass('d-none');
+                        $('#formAddExternalApplication').find("#btnReuploadTriggerRaw").prop('checked', false);
+                        $('#formAddExternalApplication').find("#btnReuploadTriggerLabelRaw").removeClass('d-none');
+
+                        $('#formAddExternalApplication').find("#txtEditUploadedFilePdf").removeClass('d-none');
+                        $('#formAddExternalApplication').find("#txtEditUploadedFileRaw").removeClass('d-none');
+
+                        $('#formAddExternalApplication').find('#txtEditUploadedFilePdf').val(data.external_original_filename);
+                        $('#formAddExternalApplication').find('#txtEditUploadedFileRaw').val(data.external_excel_filename);
+
+                        $('#formAddExternalApplication').find("#reupload_attachment").addClass('d-none');
+                        $('#formAddExternalApplication').find("#reupload_attachment").removeAttr('required');
+
+                        $('#formAddExternalApplication').find("#reupload_attachment_raw").addClass('d-none');
+                        $('#formAddExternalApplication').find("#reupload_attachment_raw").removeAttr('required');
+
+                        $('#formAddExternalApplication').find('#txtExternalApplicationId').val(data.id);
+                        $('#formAddExternalApplication').find('#reupload_remarks').val(data.remarks);
+
+                        let download_pdf ='<a href="download_external_application/'+data.id+'/external_pdf" target="_blank">';
+                            download_pdf +='<button type="button" id="download_pdf_file" name="download_pdf_file" class="btn btn-primary btn-sm d-none">';
+                            download_pdf +=     '<i class="fa-solid fa-file-arrow-down"></i>';
+                            download_pdf +=         '&nbsp;';
+                            download_pdf +=         'See Attachment';
+                            download_pdf +='</button>';
+                            download_pdf +='</a>';
+
+                        $('#formAddExternalApplication').find('#PdfAttachmentDiv').append(download_pdf);
+
+                        let download_raw ='<a href="download_external_application/'+data.id+'/external_raw" target="_blank">';
+                            download_raw +='<button type="button" id="download_raw_file" name="download_raw_file" class="btn btn-primary btn-sm d-none">';
+                            download_raw +=     '<i class="fa-solid fa-file-arrow-down"></i>';
+                            download_raw +=         '&nbsp;';
+                            download_raw +=         'See Attachment';
+                            download_raw +='</button>';
+                            download_raw +='</a>';
+
+                        $('#formAddExternalApplication').find('#RawAttachmentDiv').append(download_raw);
+                        $("#download_pdf_file").removeClass('d-none');
+                        $("#download_raw_file").removeClass('d-none');
+                    }else{
+                        toastr.error('File Not Found!');
+                    }
+                }
+            });
+        });
+
+        // ================================= RE-UPLOAD FILE =================================
+        $('#btnReuploadTriggerPdf').on('click', function(){
+            $('#btnReuploadTriggerPdf').attr('checked', 'checked');
+            if($(this).is(":checked")){
+                $('#formAddExternalApplication').find("#reupload_attachment").removeClass('d-none');
+                $('#formAddExternalApplication').find("#reupload_attachment").attr('required', true);
+                $('#formAddExternalApplication').find("#txtEditUploadedFilePdf").addClass('d-none');
+                $('#formAddExternalApplication').find("#download_pdf_file").addClass('d-none');
+            }else{
+                $('#formAddExternalApplication').find("#reupload_attachment").addClass('d-none');
+                $('#formAddExternalApplication').find("#reupload_attachment").removeAttr('required');
+                $('#formAddExternalApplication').find("#reupload_attachment").val('');
+                $('#formAddExternalApplication').find("#txtEditUploadedFilePdf").removeClass('d-none');
+                $('#formAddExternalApplication').find("#download_pdf_file").removeClass('d-none');
+            }
+        });
+
+        $('#btnReuploadTriggerRaw').on('click', function(){
+            $('#btnReuploadTriggerRaw').attr('checked', 'checked');
+            if($(this).is(":checked")){
+                $('#formAddExternalApplication').find("#reupload_attachment_raw").removeClass('d-none');
+                $('#formAddExternalApplication').find("#reupload_attachment_raw").attr('required', true);
+                $('#formAddExternalApplication').find("#txtEditUploadedFileRaw").addClass('d-none');
+                $('#formAddExternalApplication').find("#download_raw_file").addClass('d-none');
+            }else{
+                $('#formAddExternalApplication').find("#reupload_attachment_raw").addClass('d-none');
+                $('#formAddExternalApplication').find("#reupload_attachment_raw").removeAttr('required');
+                $('#formAddExternalApplication').find("#reupload_attachment_raw").val('');
+                $('#formAddExternalApplication').find("#txtEditUploadedFileRaw").removeClass('d-none');
+                $('#formAddExternalApplication').find("#download_raw_file").removeClass('d-none');
+            }
         });
 
         //HEAD APPROVAL
@@ -3944,10 +4353,12 @@ $layout = 'layouts.user_layout';
                 $('#hidden_check_status').val('');
                 $('#filter_status').prop('disabled', 'disabled');
             }
+            console.log('draw1 dt_applications');
             dt_applications.draw();
         });
 
         $('#btnFilterTable').click(function(){
+            console.log('draw2 dt_applications');
             dt_applications.draw();
         });
 
@@ -3983,8 +4394,6 @@ $layout = 'layouts.user_layout';
             let additionalData = [];
             // Validate: all rows must have coordinates
             let missingCoordinates = false;
-
-            // console.log($("#viewDataCoordinateTable tbody tr").length);
 
             $("#viewDataCoordinateTable tbody tr").each(function(){
                 let row = $(this);
@@ -4046,6 +4455,7 @@ $layout = 'layouts.user_layout';
                         toastr.success('Patch data saved successfully!');
                         $('#modalTest').modal('hide');
                         $('#viewDataCoordinateTable tbody').empty();
+                        console.log('draw3 dt_applications');
                         dt_applications.draw();
                     } else {
                         toastr.error('Saving patch data failed!');

@@ -27,6 +27,10 @@ class Applications extends Model
         return $this->hasMany(EsignApprover::class, 'application_id', 'id')->whereNull('deleted_at');
     }
 
+    public function external_app_details(){
+        return $this->hasOne(ExternalApplication::class, 'application_id', 'id')->whereNull('deleted_at');
+    }
+
     public function self_details()
     {
         return $this->hasOne(Applications::class, 'id', 'id');

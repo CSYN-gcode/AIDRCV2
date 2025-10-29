@@ -645,6 +645,54 @@ function SubmitNewApplication(array_documents){
 	});
 }
 
+
+function SubmitExternalApplication(SubmitMode){
+	let formDataExternalApp = new FormData($('#formAddExternalApplication')[0]);
+        // Add the variable to the form data
+        formDataExternalApp.append('submit_mode', SubmitMode);
+
+	$.ajax({
+		url: "submit_external_application",
+		method: "post",
+		processData: false,
+		contentType: false,
+    	data: formDataExternalApp,
+    	dataType: "json",
+    	beforeSend: function(){
+    		$('#btnSubmitExternalApplication').prop('disabled','disabled');
+    	},
+    	success: function(JsonObject){
+            $('#btnSubmitExternalApplication').removeAttr('disabled');
+
+    		if(JsonObject['result'] == 1){
+    			toastr.success('External Application Uploaded!');
+    			$('#modalAddExternalApplication').modal('hide');//clark comment
+
+    			dt_applications.draw();
+    		}else{
+       			toastr.error('External Application Upload Failed!');
+
+    			if(JsonObject['error']['reupload_attachment'] === undefined){
+		          $('#reupload_attachment').removeClass('is-invalid');
+		        }else{
+		          $('#reupload_attachment').addClass('is-invalid');
+		        }
+
+		        if(JsonObject['error']['reupload_attachment_excel'] === undefined){
+		          $('#reupload_attachment_excel').removeClass('is-invalid');
+		        }else{
+		          $('#reupload_attachment_excel').addClass('is-invalid');
+		        }
+    		}
+    	},
+    	error: function(data, xhr, status){
+    		$('#btnSubmitApplication').removeAttr('disabled');
+            toastr.error('An error occured!\n' + 'Data: ' + data + "\n" + "XHR: " + xhr + "\n" + "Status: " + status);
+        }
+
+	});
+}
+
 function LoadQsApplicationDetails(application_id)
 {
 	$.ajax({
@@ -778,7 +826,6 @@ function GetEsignApprover(cboElement1, userId){
         },
         success: function (response) {
             let user_details = response['users'];
-            console.log('user_details', user_details);
             if(user_details.length > 0){
                     result = '<option value="" disabled selected> Select Approver Name </option>';
                 for(let index = 0; index < user_details.length; index++){
@@ -1113,6 +1160,7 @@ function LoadViewApplicationDetails(application_id, view_edit){
 				let originator = JsonObject['application_details'][0].application_originator;
 				let created_at = JsonObject['application_details'][0].created_at;
 				let originator_remarks = JsonObject['application_details'][0].originator_remarks;
+				let application_type = JsonObject['application_details'][0].application_type;
 
 				if(document_number != null){
 					$('#view_doc_no').val(document_number);
@@ -1131,6 +1179,21 @@ function LoadViewApplicationDetails(application_id, view_edit){
 				$('#view_created_at').val(created_at);
 				$('#view_application_id').val(application_id);
 				$('#view_remarks').val(originator_remarks);
+				// $('#view_application_type').val(application_type);
+
+                if (esign_details.length > 0) {
+                    $('#editApproverWithEsignature').prop('checked', true);
+                    $('#editApproverWithEsignature').trigger('change');
+                }else{
+                    $('#editApproverWithEsignature').prop('checked', false);
+                    $('#editApproverWithEsignature').trigger('change');
+                }
+
+                if (application_type == 2) {
+                    $('#view_application_type').prop('checked', true);
+                }else{
+                    $('#view_application_type').prop('checked', false);
+                }
 
 				if(view_edit == 1){
 					if(application_status == 6 || application_status == 7 || application_status == 8){
@@ -1143,6 +1206,7 @@ function LoadViewApplicationDetails(application_id, view_edit){
 				}
 
                 $('#editApproverStatus').removeClass('d-none');
+                $('#editDateApproved').removeClass('d-none');
                 $('#editApproverRemarks').removeClass('d-none');
 
                 $('#edit_attachment').data('application-id', application_id);
@@ -1160,6 +1224,7 @@ function LoadViewApplicationDetails(application_id, view_edit){
 
                     $('#editApproverButton').attr('data-filepath', filePath);
                     // Since new file is uploaded, clear esign details
+                    console.log('set editApproverTable to empty');
                     $('#editApproverTable tbody').empty();
                     esign_details = []; // reset
                 }else{
@@ -1169,128 +1234,142 @@ function LoadViewApplicationDetails(application_id, view_edit){
                     filePath = "http://rapidx/aidrc_v2/storage/app/public/file_attachments/"+filename;
 
                     $('#editApproverButton').attr('data-filepath', filePath);
-                    esign_details.forEach(row => {
-                        let status;
+                    
+                    if(esign_details != ''){
+                        $('#viewApproverTab').removeClass('d-none');
 
-                        if(row.status == 1){
-                            status = 'Approved';
-                        }else if(row.status == 2){
-                            status = 'Disapproved';
-                        }else{
-                            status = 'N/A';
-                        }
+                        esign_details.forEach(row => {
+                            let status;
 
-                        if(row.remarks == null){
-                            remarks = 'No Record';
-                        }else{
-                            remarks = row.remarks;
-                        }
+                            if(row.status == 1){
+                                status = 'Approved';
+                            }else if(row.status == 2){
+                                status = 'Disapproved';
+                            }else{
+                                status = 'N/A';
+                            }
 
-                        let coords = row.coordinates.split('|'); // "0.1885|0.1728" → [0.1885, 0.1728]
-                        let coordinateText = `X: ${coords[0]}, Y: ${coords[1]}`;
+                            if(row.remarks == null){
+                                remarks = 'No Record';
+                            }else{
+                                remarks = row.remarks;
+                            }
 
-                        var rowHtml = `
-                            <tr>
-                                <td id="approvalOrder-${row.approval_order}">${row.approval_order}</td>
-                                <td>
-                                    <select id="approver-${row.approval_order}" class="form-control form-control-sm select2bs5 SelectEditApprover"></select>
-                                </td>
-                                <td hidden>
-                                    <input class="form-control form-control-sm" id="esignature-${row.approval_order}" data-signature value="">
-                                </td>
-                                <td id="pageNumber-${row.approval_order}">${row.page_no}</td>
-                                <td id="coordinates-${row.approval_order}">${coordinateText}</td>
-                                <td id="status-${row.approval_order}">${status}</td>
-                                <td id="remarks-${row.approval_order}">${remarks}</td>
-                                <td>
-                                    <button disabled type="button" class="btn btn-primary btn-sm previewPdfButton" data-row="${row.approval_order}" data-file-url="${filePath}">Preview PDF</button>
-                                    <button disabled type="button" class="btn btn-danger btn-sm editApproverDeleteRow">Delete</button>
-                                </td>
-                            </tr>
-                        `;
+                            if(row.updated_at == null){
+                                updated_at = 'No Record';
+                            }else{
+                                updated_at = row.updated_at;
+                            }
 
-                        $('#editApproverTable tbody').append(rowHtml);
-                        // Populate SelectApprover dropdown
-                        GetEsignApprover($('.SelectEditApprover').last(), row.approver_id);
+                            let coords = row.coordinates.split('|'); // "0.1885|0.1728" → [0.1885, 0.1728]
+                            let coordinateText = `X: ${coords[0]}, Y: ${coords[1]}`;
 
-                        $('.select2bs5').select2({
-                            width: '100%',
-                            theme: 'bootstrap-4'
+                            console.log('set editApproverTable row');
+                            var rowHtml = `
+                                <tr>
+                                    <td id="approvalOrder-${row.approval_order}">${row.approval_order}</td>
+                                    <td>
+                                        <select id="approver-${row.approval_order}" class="form-control form-control-sm select2bs5 SelectEditApprover"></select>
+                                    </td>
+                                    <td hidden>
+                                        <input class="form-control form-control-sm" id="esignature-${row.approval_order}" data-signature value="">
+                                    </td>
+                                    <td id="pageNumber-${row.approval_order}">${row.page_no}</td>
+                                    <td id="coordinates-${row.approval_order}">${coordinateText}</td>
+                                    <td id="status-${row.approval_order}">${status}</td>
+                                    <td id="date_approved-${row.approval_order}">${updated_at}</td>
+                                    <td id="remarks-${row.approval_order}">${remarks}</td>
+                                    <td>
+                                        <button disabled type="button" class="btn btn-primary btn-sm previewPdfButton" data-row="${row.approval_order}" data-file-url="${filePath}">Preview PDF</button>
+                                        <button disabled type="button" class="btn btn-danger btn-sm editApproverDeleteRow">Delete</button>
+                                    </td>
+                                </tr>
+                            `;
+
+                            $('#editApproverTable tbody').append(rowHtml);
+                            // Populate SelectApprover dropdown
+                            GetEsignApprover($('.SelectEditApprover').last(), row.approver_id);
+
+                            $('.select2bs5').select2({
+                                width: '100%',
+                                theme: 'bootstrap-4'
+                            });
                         });
-                    });
+                    }else{
+                        $('#viewApproverTab').addClass('d-none');
+                    }
                 }
 
-                // // Detect uploaded file (if any)
-                // let uploadedFile = $('#edit_attachment')[0].files[0];
-                // let filePath;
+                if(JsonObject['application_details'][0].application_type == 2 && JsonObject['application_details'][0].external_app_details != null){
+                    if(JsonObject['application_details'][0].external_app_details.status == 1){
+                    console.log('testt1a');
 
-                // if (uploadedFile) {
-                //     console.log('Uploaded file detected:', uploadedFile);
+                    $('#viewExternalTab').removeClass('d-none');
 
-                //     // Use Object URL for preview
-                //     filePath = URL.createObjectURL(uploadedFile);
+                    $('#formEditApplication').find('#txtViewOrigPdf').val(JsonObject['application_details'][0].external_app_details.orig_original_filename);
+                    $('#formEditApplication').find('#txtViewOrigRaw').val(JsonObject['application_details'][0].external_app_details.orig_excel_filename);
+                    $('#formEditApplication').find('#txtViewExternalPdf').val(JsonObject['application_details'][0].external_app_details.external_original_filename);
+                    $('#formEditApplication').find('#txtViewExternalRaw').val(JsonObject['application_details'][0].external_app_details.external_excel_filename);
+                    $('#formEditApplication').find('#txtViewReuploadRemarks').val(JsonObject['application_details'][0].external_app_details.remarks);
 
-                //     // Since new file is uploaded, clear esign details
-                //     $('#editApproverTable tbody').empty();
-                //     esign_details = []; // reset
-                // }else{
-                    // console.log('Existing file:');
+                    let downloadBtnDivAttr = ['#OrigPdfAttachmentDiv','#OrigRawAttachmentDiv','#ExternalPdfAttachmentDiv','#ExternalRawAttachmentDiv'];
+                    let categories = ['orig_pdf', 'orig_raw', 'external_pdf', 'external_raw'];
+                    let hrefLinkOrigDoc = 'download_attached_document_new/'+application_id;
+                    // let hrefLinkOrigRawDoc = 'download_attached_doc_excel/'+application_id;
+                    let hrefLinkExternalDoc = 'download_external_application/'+JsonObject['application_details'][0].external_app_details.id;
 
-                    // filename = aidrc_filename.replace('modified_', '');
-                    // filePath = "http://rapidx/aidrc_v2/storage/app/public/file_attachments/"+filename;
+                    for(i = 0; i < downloadBtnDivAttr.length; i++){
+                        
+                        $('#formEditApplication').find(downloadBtnDivAttr[i] + ' .download-btn').remove(); // Clear existing download buttons if any
+                        // let hrefLink = (i < 2) ? hrefLinkOrigDoc : hrefLinkExternalDoc;
 
-                    // $('#editApproverButton').attr('data-filepath', filePath);
-                    // esign_details.forEach(row => {
-                    //     let status;
+                        if(i == 0){
+                            hrefLink = hrefLinkOrigDoc;
+                        }else{
+                            hrefLink = hrefLinkExternalDoc;
+                        }
 
-                    //     if(row.status == 1){
-                    //         status = 'Approved';
-                    //     }else if(row.status == 2){
-                    //         status = 'Disapproved';
-                    //     }else{
-                    //         status = 'N/A';
-                    //     }
+                        let variable = categories[i];
+                        let dl_orig_pdf = '';
 
-                    //     if(row.remarks == null){
-                    //         remarks = 'No Record';
-                    //     }else{
-                    //         remarks = row.remarks;
-                    //     }
+                            dl_orig_pdf ='<a class="download-btn" href="'+hrefLink+'/'+variable+'" target="_blank">';
+                            dl_orig_pdf +='<button type="button" class="btn btn-primary btn-sm">';
+                            dl_orig_pdf +=     '<i class="fa-solid fa-file-arrow-down"></i>';
+                            dl_orig_pdf +=         '&nbsp;';
+                            dl_orig_pdf +=         'See Attachment';
+                            dl_orig_pdf +='</button>';
+                            dl_orig_pdf +='</a>';
 
-                    //     let coords = row.coordinates.split('|'); // "0.1885|0.1728" → [0.1885, 0.1728]
-                    //     let coordinateText = `X: ${coords[0]}, Y: ${coords[1]}`;
+                        $('#formEditApplication').find(downloadBtnDivAttr[i]).append(dl_orig_pdf);
+                    }
 
-                    //     var rowHtml = `
-                    //         <tr>
-                    //             <td id="approvalOrder-${row.approval_order}">${row.approval_order}</td>
-                    //             <td>
-                    //                 <select id="approver-${row.approval_order}" class="form-control form-control-sm select2bs5 SelectEditApprover"></select>
-                    //             </td>
-                    //             <td hidden>
-                    //                 <input class="form-control form-control-sm" id="esignature-${row.approval_order}" data-signature value="">
-                    //             </td>
-                    //             <td id="pageNumber-${row.approval_order}">${row.page_no}</td>
-                    //             <td id="coordinates-${row.approval_order}">${coordinateText}</td>
-                    //             <td id="status-${row.approval_order}">${status}</td>
-                    //             <td id="remarks-${row.approval_order}">${remarks}</td>
-                    //             <td>
-                    //                 <button type="button" class="btn btn-primary btn-sm previewPdfButton" data-row="${row.approval_order}" data-file-url="${filePath}">Preview PDF</button>
-                    //                 <button type="button" class="btn btn-danger btn-sm editApproverDeleteRow">Delete</button>
-                    //             </td>
-                    //         </tr>
-                    //     `;
+                    // let dl_orig_pdf ='<a href="download_external_application/'+JsonObject['application_details'][0].external_app_details.id+'/orig_pdf" target="_blank">';
+                    //     dl_orig_pdf +='<button type="button" class="btn btn-primary btn-sm">';
+                    //     dl_orig_pdf +=     '<i class="fa-solid fa-file-arrow-down"></i>';
+                    //     dl_orig_pdf +=         '&nbsp;';
+                    //     dl_orig_pdf +=         'See Attachment';
+                    //     dl_orig_pdf +='</button>';
+                    //     dl_orig_pdf +='</a>';
 
-                    //     $('#editApproverTable tbody').append(rowHtml);
-                    //     // Populate SelectApprover dropdown
-                    //     GetEsignApprover($('.SelectEditApprover').last(), row.approver_id);
+                    // $('#formEditApplication').find('#OrigPdfAttachmentDiv').append(dl_orig_pdf);
 
-                    //     $('.select2bs5').select2({
-                    //         width: '100%',
-                    //         theme: 'bootstrap-4'
-                    //     });
-                    // });
-                // }
+                    // let dl_orig_raw ='<a href="download_external_application/'+JsonObject['application_details'][0].external_app_details.id+'/orig_raw" target="_blank">';
+                    //     dl_orig_raw +='<button type="button" class="btn btn-primary btn-sm">';
+                    //     dl_orig_raw +=     '<i class="fa-solid fa-file-arrow-down"></i>';
+                    //     dl_orig_raw +=         '&nbsp;';
+                    //     dl_orig_raw +=         'See Attachment';
+                    //     dl_orig_raw +='</button>';
+                    //     dl_orig_raw +='</a>';
 
+                    // $('#formEditApplication').find('#OrigRawAttachmentDiv').append(dl_orig_raw);
+                    }else{
+                        console.log('testt2b');
+                        $('#viewExternalTab').addClass('d-none');
+                    }
+                }else{
+                    console.log('testt2a');
+                    $('#viewExternalTab').addClass('d-none');
+                }
 				//draw tables
 				dt_view_affected_documents.draw();
 				dt_view_dcc_validations.draw();
