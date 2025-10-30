@@ -1068,7 +1068,7 @@ class NewApplicationController extends Controller{
                     'original_filename' => $cleanedFilenamePdf,
                     'aidrc_excel_filename' => $aidrc_filename_excel,
                     'excel_filename' => $cleanedFilenameRaw,
-                    'application_type' => $request->add_application_type,
+                    'application_type' => $request->add_application_type ?: 1,
                     'status' => $status,
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
