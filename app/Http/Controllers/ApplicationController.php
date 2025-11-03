@@ -1986,7 +1986,7 @@ class ApplicationController extends Controller{
         $attachment = Applications::where('id', $request->application_id)->where('logdel', 0)->get();
         $newFilename = str_replace('modified_', '', $attachment[0]->aidrc_filename);
         $file =  storage_path()."/app/public/file_attachments/".$newFilename;
-        $test_file = '/var/www/aidrc_v2_test/storage/app/public/file_attachments/1025-1490_ aidrc_attachment_20251020185806.pdf';
+        // $test_file = '/var/www/aidrc_v2_test/storage/app/public/file_attachments/1025-1490_ aidrc_attachment_20251020185806.pdf';
         // return $file;
         if (!file_exists($file)){
             // abort(404, 'File not found.');

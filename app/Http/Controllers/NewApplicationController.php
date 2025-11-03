@@ -186,7 +186,7 @@ class NewApplicationController extends Controller{
                 return $result;
             })
             ->addColumn('uploaded_file', function ($application) {
-                $result = '<a href="download_attached_document_new/' . $application->id . '/0" title="Click to download file" target="_blank">' . $application->original_filename . '</a>';
+                $result = '<a href="download_attached_document_new/' . $application->id . '" title="Click to download file" target="_blank">' . $application->original_filename . '</a>';
                 return $result;
             })
             ->addColumn('uploaded_excel_file', function ($application) {

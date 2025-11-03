@@ -193,7 +193,7 @@ Route::get('/load_for_control_affected_documents_email_overdue','NewApplicationC
 
 Route::post('/submit_dcc_edit_document','MasterListController@submit_dcc_edit_document');
 
-Route::get('/download_attached_document_new/{application_id}/{category}','PdfController@download_attached_document_new')->name('download_attached_document_new');
+Route::get('/download_attached_document_new/{application_id}/{category?}','PdfController@download_attached_document_new')->name('download_attached_document_new');
 Route::post('/edit_pdf_attachment', 'PdfController@attachDataToPdf');
 Route::post('/save_pdf_patch_data', 'PdfController@savePdfPatchData');
 Route::get('/get_patch_data', 'PdfController@getPatchData');
