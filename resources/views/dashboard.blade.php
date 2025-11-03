@@ -459,7 +459,7 @@ $layout = 'layouts.user_layout';
                                                     <div class="input-group-prepend w-50">
                                                         <span class="input-group-text w-100" id="basic-addon1">ORIGINATOR REMARKS</span>
                                                     </div>
-                                                    <textarea class="form-control" id="add_remarks" name="add_remarks" rows="3" style="resize: none;" placeholder="(Optional)"></textarea>
+                                                    <textarea class="form-control" id="add_remarks" name="add_remarks" rows="3" maxlength="254" placeholder="(Optional)"></textarea>
                                                 </div>
                                             </div>
                                         </div>
