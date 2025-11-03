@@ -1358,7 +1358,7 @@ $layout = 'layouts.user_layout';
                                                     <div class="input-group-prepend w-50">
                                                         <span class="input-group-text w-100" id="basic-addon1">APPROVER REMARKS</span>
                                                     </div>
-                                                    <textarea class="form-control" id="head_approval_remarks" name="head_approval_remarks" rows="3" style="resize: none;" placeholder="(Required if Disapproved; Optional if Approved)"></textarea>
+                                                    <textarea class="form-control" id="head_approval_remarks" name="head_approval_remarks" rows="3" maxlength="254" placeholder="(Required if Disapproved; Optional if Approved)"></textarea>
                                                 </div>
                                             </div>
                                         </div>
