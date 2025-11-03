@@ -1633,7 +1633,7 @@ class NewApplicationController extends Controller{
                             'original_filename' => $cleanedFilenamePdf,
                             'aidrc_excel_filename' => $aidrc_filename_excel,
                             'excel_filename' => $cleanedFilenameRaw,
-                            'application_type' => $request->view_application_type,
+                            'application_type' => $request->view_application_type ?: 1,
                             'application_section_head' => $request->view_section_head_approver,
                             'updated_at' => date('Y-m-d H:i:s'),
                             'status' => 1, //Back to Start Status
@@ -1676,7 +1676,7 @@ class NewApplicationController extends Controller{
                             'application_section_head' => $request->view_section_head_approver,
                             'aidrc_excel_filename' => $aidrc_filename_excel,
                             'excel_filename' => $cleanedFilenameRaw,
-                            'application_type' => $request->view_application_type,
+                            'application_type' => $request->view_application_type ?: 1,
                             'updated_at' => date('Y-m-d H:i:s'),
                             'status' => 1, //Back to Start Status
                         ]);
