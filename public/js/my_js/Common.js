@@ -600,41 +600,47 @@ function SubmitNewApplication(array_documents){
 		          $('#add_doc_rev_no').addClass('is-invalid');
 		        }
 
-		        if(JsonObject['error']['add_section_head_approver'] === undefined){
-		          $('#add_section_head_approver').removeClass('is-invalid');
-		        }else{
-		          $('#add_section_head_approver').addClass('is-invalid');
+		        if(JsonObject['error']['add_attachment_excel'] === undefined){
+		          $('#add_attachment_excel').removeClass('is-invalid');
+                }else{
+		          $('#add_attachment_excel').addClass('is-invalid');
 		        }
 
-		        if(JsonObject['error']['add_production_head'] === undefined){
-		          $('#add_production_head').removeClass('is-invalid');
-		        }else{
-		          $('#add_production_head').addClass('is-invalid');
-		        }
+		        // if(JsonObject['error']['add_section_head_approver'] === undefined){
+		        //   $('#add_section_head_approver').removeClass('is-invalid');
+		        // }else{
+		        //   $('#add_section_head_approver').addClass('is-invalid');
+		        // }
 
-		        if(JsonObject['error']['add_qc_head'] === undefined){
-		          $('#add_qc_head').removeClass('is-invalid');
-		        }else{
-		          $('#add_qc_head').addClass('is-invalid');
-		        }
+		        // if(JsonObject['error']['add_production_head'] === undefined){
+		        //   $('#add_production_head').removeClass('is-invalid');
+		        // }else{
+		        //   $('#add_production_head').addClass('is-invalid');
+		        // }
 
-		        if(JsonObject['error']['add_eng_head'] === undefined){
-		          $('#add_eng_head').removeClass('is-invalid');
-		        }else{
-		          $('#add_eng_head').addClass('is-invalid');
-		        }
+		        // if(JsonObject['error']['add_qc_head'] === undefined){
+		        //   $('#add_qc_head').removeClass('is-invalid');
+		        // }else{
+		        //   $('#add_qc_head').addClass('is-invalid');
+		        // }
 
-		        if(JsonObject['error']['add_approver_priority'] === undefined){
+		        // if(JsonObject['error']['add_eng_head'] === undefined){
+		        //   $('#add_eng_head').removeClass('is-invalid');
+		        // }else{
+		        //   $('#add_eng_head').addClass('is-invalid');
+		        // }
 
-		        }else{
-		          toastr.error('Please select your Initial Approver!');
-		        }
+		        // if(JsonObject['error']['add_approver_priority'] === undefined){
 
-		        if(JsonObject['error']['add_qs_inspector'] === undefined){
-		          $('#add_qs_inspector').removeClass('is-invalid');
-		        }else{
-		          $('#add_qs_inspector').addClass('is-invalid');
-		        }
+		        // }else{
+		        //   toastr.error('Please select your Initial Approver!');
+		        // }
+
+		        // if(JsonObject['error']['add_qs_inspector'] === undefined){
+		        //   $('#add_qs_inspector').removeClass('is-invalid');
+		        // }else{
+		        //   $('#add_qs_inspector').addClass('is-invalid');
+		        // }
     		}
     	},
     	error: function(data, xhr, status){
@@ -1234,7 +1240,7 @@ function LoadViewApplicationDetails(application_id, view_edit){
                     filePath = "http://rapidx/aidrc_v2/storage/app/public/file_attachments/"+filename;
 
                     $('#editApproverButton').attr('data-filepath', filePath);
-                    
+
                     if(esign_details != ''){
                         $('#viewApproverTab').removeClass('d-none');
 
@@ -1319,7 +1325,7 @@ function LoadViewApplicationDetails(application_id, view_edit){
                     let hrefLinkExternalDoc = 'download_external_application/'+JsonObject['application_details'][0].external_app_details.id;
 
                     for(i = 0; i < downloadBtnDivAttr.length; i++){
-                        
+
                         $('#formEditApplication').find(downloadBtnDivAttr[i] + ' .download-btn').remove(); // Clear existing download buttons if any
                         // let hrefLink = (i < 2) ? hrefLinkOrigDoc : hrefLinkExternalDoc;
 

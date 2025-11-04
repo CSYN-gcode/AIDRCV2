@@ -213,18 +213,40 @@ class PdfController extends Controller
         }
 
         if($status == 1){
+            // Update application status to "Patch Data Submitted"
             Applications::where('id', $applicationId)->update([
                                 'status' => 8, // 8 - Patch Data Submitted
                                 'updated_at' => NOW(),
                             ]);
 
-            return redirect()->route('download_attached_document_new', ['application_id' => $applicationId, 'save_to_storage' => 'true']);
+            $url = route('download_attached_document_new', [
+                'application_id' => $applicationId,
+            ]) . '?save_to_storage=true';
+
+            return redirect()->to($url);
+            // return redirect()->route('download_attached_document_new', ['application_id' => $applicationId, 'save_to_storage' => 'true']);
+            // return redirect()->route('download_attached_document_new', ['application_id' => $applicationId]). '?save_to_storage=true';
+            // return redirect()->route('download_attached_document_new', [
+            //     'application_id' => $applicationId,
+            //     'save_to_storage' => 'true'
+            // ])->getTargetUrl();
+
         }else{
             return response()->json(['result' => 1]);
         }
     }
 
-    public function download_attached_document_new(Request $request, $category = null) {
+    // public function download_attached_document_new(Request $request, $application_id = null, $category = null) {
+    public function download_attached_document_new(Request $request, $application_id, $category = null) {
+        // Optionally, if you still want to access it like $request->application_id:
+        $request->merge(['application_id' => $application_id]);
+
+        // dd('entered function', $request->all(), $application_id, $category);
+
+        // $saveToStorage = $request->query('save_to_storage');
+        // dd($saveToStorage);
+
+        // return $saveToStorage;
         $application = Applications::with([
             'esign_approver_details.user_details',
             'external_app_details'
@@ -232,6 +254,8 @@ class PdfController extends Controller
         ->where('id', $request->application_id)
         ->where('logdel', 0)
         ->first();
+
+        // return $application;
 
         if (!$application) {
             return response()->json(['error' => 'Application not found'], 404);
@@ -365,6 +389,9 @@ class PdfController extends Controller
         }
 
         if($request->query('save_to_storage') == 'true') {
+        // if (filter_var($request->query('save_to_storage'), FILTER_VALIDATE_BOOLEAN)) {
+            // return 'saving to storage';
+
             $date_now = Carbon::now()->toDateString();
             $generated_filename = $application->aidrc_control_number. "_aidrc_attachment_". date('YmdHis') . ".pdf";
             $savePath = storage_path('app/public/file_attachments/' . $generated_filename);
@@ -382,6 +409,9 @@ class PdfController extends Controller
                 'saved_filename' => $generated_filename,
             ]);
         }
+        // else{
+        //     return 'streaming to browser';
+        // }
 
         // 📄 Default behavior: Stream to browser
         return response()->stream(function () use ($pdf) {
