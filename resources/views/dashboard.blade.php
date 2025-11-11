@@ -2389,12 +2389,12 @@ $layout = 'layouts.user_layout';
                                                 </div>
 
                                                 <!--RAW ATTACHMENT-->
-                                                <div class="form-group">
+                                                {{-- <div class="form-group">
                                                     <div class="form-control-label" id="OrigRawAttachmentDiv">
                                                         <label class="form-control-label">RAW ATTACHMENT</label>
                                                     </div>
                                                     <input type="text" class="form-control form-control-sm" id="txtViewOrigRaw" disabled>
-                                                </div>
+                                                </div> --}}
                                             </div>
                                         </div>
                                     </div>
@@ -2413,12 +2413,12 @@ $layout = 'layouts.user_layout';
                                                  </div>
 
                                                 <!--RAW ATTACHMENT-->
-                                                <div class="form-group">
+                                                {{-- <div class="form-group">
                                                     <div class="form-control-label" id="ExternalRawAttachmentDiv">
                                                         <label class="form-control-label">RAW ATTACHMENT (Excel/Word File)</label>
                                                     </div>
                                                     <input type="text" class="form-control form-control-sm" id="txtViewExternalRaw" disabled>
-                                                </div>
+                                                </div> --}}
 
                                                 <!--Remarks-->
                                                 <div class="row">
@@ -2975,7 +2975,7 @@ $layout = 'layouts.user_layout';
                                 </div>
 
                                 <!--RAW ATTACHMENT-->
-                                <div class="form-group">
+                                {{-- <div class="form-group">
                                     <div class="form-control-label" id="RawAttachmentDiv">
                                         <label class="form-control-label">RAW ATTACHMENT (Excel/Word File)</label>
                                     </div>
@@ -2985,7 +2985,7 @@ $layout = 'layouts.user_layout';
                                             <input type="checkbox" class="form-check-input d-none" id="btnReuploadTriggerRaw">
                                             <label class="d-none" id="btnReuploadTriggerLabelRaw"> Re-upload RAW Attachment</label>
                                         </div>
-                                </div>
+                                </div> --}}
 
                                 <!--Remarks-->
                                 <div class="row">
