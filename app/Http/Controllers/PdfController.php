@@ -264,12 +264,16 @@ class PdfController extends Controller
         $approvers = $application->esign_approver_details;
         $patchData = PatchDataPdf::where('application_id', $request->application_id)->whereNull('deleted_at')->get();
 
+        // dd($application->external_app_details);
+        // return $application->external_app_details;
+
         if($category == 'orig_pdf' && $application->external_app_details){
-            $documentName = $application->external_app_details->aidrc_filename;
+            $documentName = $application->external_app_details->orig_aidrc_filename;
         }else{
             $documentName = $application->aidrc_filename;
         }
-
+        // dd('test');
+        // return $documentName;
         // $filename = str_replace('modified_', '', $application->aidrc_filename); clark comment 10/24/2025
         $filename = str_replace('modified_', '', $documentName);
         $filePath = storage_path("app/public/file_attachments/{$filename}");

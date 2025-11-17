@@ -1210,7 +1210,6 @@ class NewApplicationController extends Controller{
         if(!isset($request->external_application_id)){ //INSERT
             $validator = Validator::make($request->all(), [
                         'reupload_attachment' => 'required',
-                        'reupload_attachment_raw' => 'required',
             ]);
 
             if($validator->passes()){
