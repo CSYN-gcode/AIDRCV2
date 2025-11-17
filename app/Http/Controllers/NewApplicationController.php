@@ -241,11 +241,18 @@ class NewApplicationController extends Controller{
                         break;
                     }
                     case 7: { //Completed - Editted PDF
-                        if($application->application_type == 2){
+                        // Default value
+                        $result = "<strong style='color:rgb(87, 37, 134);'>FOR DCC (FOR UPDATE)</strong>";
+
+                        if ($application->application_type == 2 && optional($application->external_app_details)->status == 0) {
                             $result = "<strong style='color:#6610f2;'>FOR REUPLOAD (With YEC Approval)</strong>";
-                        }else{
-                            $result = "<strong style='color:rgb(87, 37, 134);'>FOR DCC (FOR UPDATE)</strong>";
                         }
+
+                        // if($application->application_type == 2){
+                        //     $result = "<strong style='color:#6610f2;'>FOR REUPLOAD (With YEC Approval)</strong>";
+                        // }else{
+                        //     $result = "<strong style='color:rgb(87, 37, 134);'>FOR DCC (FOR UPDATE)</strong>";
+                        // }
                         break;
                     }
                     case 8: { //Completed - FOR UPLOAD TO ACDCS
