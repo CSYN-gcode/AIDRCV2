@@ -538,6 +538,7 @@ $(document).ready(function(){
         if ($(this).prop('checked')) {
             console.log('with e-signature');
             // Allow switching to the "Set Coordinates" tab
+            $('#viewApproverTab').removeClass('d-none');
             $('#editApprover-tab').removeClass('disabled');
         }else{
             $('#editApprover-tab').addClass('disabled');

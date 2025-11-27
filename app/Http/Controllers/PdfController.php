@@ -19,7 +19,7 @@ use Carbon\Carbon;
 
 class PdfController extends Controller
 {
-        private function attachPatchDataToPdf($pdf, $patchData, $filePath) {
+    private function attachPatchDataToPdf($pdf, $patchData, $filePath) {
         $pageCount = $pdf->setSourceFile($filePath);
 
         for ($i = 1; $i <= $pageCount; $i++) {
@@ -48,6 +48,19 @@ class PdfController extends Controller
         $escapedInput = escapeshellarg($inputPath);
         $escapedOutput = escapeshellarg($outputPath);
 
+        // Ghostscript command for flattening + compatibility
+        // $command = "gs -sDEVICE=pdfwrite "
+        //         . "-dCompatibilityLevel=1.4 "
+        //         . "-dPDFSETTINGS=/default "        // Better quality & embedding
+        //         . "-dCompressPages=true "
+        //         . "-dDetectDuplicateImages=true "
+        //         . "-dDownsampleColorImages=false "
+        //         . "-dNOPAUSE -dQUIET -dBATCH "
+        //         . "-sOutputFile=$escapedOutput "
+        //         . "$escapedInput 2>&1";
+
+                // . "-dUseCIEColor=true "             // Better color handling
+        //old ghostscript command commented out 11/18/2025 clark
         $command = "gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/default " .
                "-dNOPAUSE -dQUIET -dBATCH -sOutputFile=$escapedOutput $escapedInput 2>&1";
 
@@ -61,7 +74,7 @@ class PdfController extends Controller
         // Log::error("Ghostscript return code: $exitCode");
 
         if ($exitCode  !== 0) {
-            throw new \Exception("PDF conversion failed: " . implode("\n", $outputLines));
+            throw new \Exception("PDF conversion failed: \n" . implode("\n", $outputLines));
         }
 
         return $outputPath;
@@ -241,12 +254,6 @@ class PdfController extends Controller
         // Optionally, if you still want to access it like $request->application_id:
         $request->merge(['application_id' => $application_id]);
 
-        // dd('entered function', $request->all(), $application_id, $category);
-
-        // $saveToStorage = $request->query('save_to_storage');
-        // dd($saveToStorage);
-
-        // return $saveToStorage;
         $application = Applications::with([
             'esign_approver_details.user_details',
             'external_app_details'
@@ -255,8 +262,6 @@ class PdfController extends Controller
         ->where('logdel', 0)
         ->first();
 
-        // return $application;
-
         if (!$application) {
             return response()->json(['error' => 'Application not found'], 404);
         }
@@ -264,23 +269,28 @@ class PdfController extends Controller
         $approvers = $application->esign_approver_details;
         $patchData = PatchDataPdf::where('application_id', $request->application_id)->whereNull('deleted_at')->get();
 
-        // dd($application->external_app_details);
-        // return $application->external_app_details;
-
         if($category == 'orig_pdf' && $application->external_app_details){
             $documentName = $application->external_app_details->orig_aidrc_filename;
         }else{
             $documentName = $application->aidrc_filename;
         }
-        // dd('test');
-        // return $documentName;
+
         // $filename = str_replace('modified_', '', $application->aidrc_filename); clark comment 10/24/2025
         $filename = str_replace('modified_', '', $documentName);
         $filePath = storage_path("app/public/file_attachments/{$filename}");
+
         // Convert PDF to compatible format
         $compatibleFile = $this->convertPdfToCompatible($filePath);
 
+        // $flattenedFile = $this->flattenPdf($input, $output);
+        // ⚠️ Create temp flattened file
+        // $flattenedFile = storage_path('app/temp_flattened_' . uniqid() . '.pdf');
+
+        // // ✅ Flatten the PDF (important!)
+        // $this->flattenPdf($compatibleFile, $flattenedFile);
+
         // $pdf = new \setasign\Fpdi\Fpdi('P', 'mm', 'A4');
+        // Now use the flattened PDF for FPDI import
         $pdf = new Fpdi('P', 'mm', 'A4'); // mm unit
 
         $pdf->setPrintHeader(false);
@@ -289,7 +299,7 @@ class PdfController extends Controller
         $pdf->SetAutoPageBreak(false, 0);
         $pageCount = $pdf->setSourceFile($compatibleFile);
 
-        for ($i = 1; $i <= $pageCount; $i++) {
+        for ($i = 1; $i <= $pageCount; $i++){
             $templateId = $pdf->importPage($i);
             $size = $pdf->getTemplateSize($templateId);
 
@@ -393,7 +403,7 @@ class PdfController extends Controller
         }
 
         if($request->query('save_to_storage') == 'true') {
-        // if (filter_var($request->query('save_to_storage'), FILTER_VALIDATE_BOOLEAN)) {
+            // if (filter_var($request->query('save_to_storage'), FILTER_VALIDATE_BOOLEAN)) {
             // return 'saving to storage';
 
             $date_now = Carbon::now()->toDateString();
@@ -429,6 +439,39 @@ class PdfController extends Controller
         ]);
     }
 
+    private function flattenPdf($input, $output){
+        // Ghostscript command
+        $command = "gs -o " . escapeshellarg($outputPath)
+            . " -sDEVICE=pdfwrite "
+            . " -dCompatibilityLevel=1.4 "
+            . " -dPDFSETTINGS=/prepress "
+            . " -dNOPAUSE -dQUIET -dBATCH "
+            . escapeshellarg($inputPath);
+
+        exec($command, $output, $returnCode);
+
+        if ($returnCode !== 0) {
+            throw new \Exception("Ghostscript failed to flatten the PDF.");
+        }
+
+        return $outputPath;
+
+        // $pdf = new Fpdi();
+
+        // $pageCount = $pdf->setSourceFile($input);
+
+        // for ($i = 1; $i <= $pageCount; $i++) {
+        //     $tpl = $pdf->importPage($i);
+        //     $size = $pdf->getTemplateSize($tpl);
+
+        //     $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+        //     $pdf->useTemplate($tpl, 0, 0, $size['width'], $size['height'], true);
+        //     // "true" here forces flatten-like rendering
+        // }
+
+        // $pdf->Output($output, 'F');
+    }
+
     public function generateFullPdfWithSignatureAndPatch(Request $request) {
         $application = Applications::with([
             'esign_approver_details.user_details'
@@ -445,7 +488,7 @@ class PdfController extends Controller
                                 ->where('status', 1)
                                 ->get();
 
-        return $patchData;
+        // return $patchData;
         $filePath = storage_path("app/public/file_attachments/" . str_replace('modified_', '', $application->aidrc_filename));
 
         $compatibleFile = $this->convertPdfToCompatible($filePath);

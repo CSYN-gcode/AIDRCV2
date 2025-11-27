@@ -675,6 +675,8 @@ function SubmitExternalApplication(SubmitMode){
     			$('#modalAddExternalApplication').modal('hide');//clark comment
 
     			dt_applications.draw();
+    		}else if(JsonObject['result'] == 0){
+    			toastr.success(JsonObject['message']);
     		}else{
        			toastr.error('External Application Upload Failed!');
 
