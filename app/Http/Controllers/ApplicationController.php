@@ -40,6 +40,8 @@ class ApplicationController extends Controller{
                         ->count();
                         // ->toSql();
 
+                        // return $application;
+
         if ($application > 0){ // with result
             return response()->json(['result' => 1]);
         }else{ // no result

@@ -49,7 +49,7 @@ $(document).ready(function(){
             <tr>
                 <td id="approvalOrder-${rowId}">${rowCount}</td>
                 <td>
-                    <select id="approver-${rowId}" class="select2bs5 SelectApprover" style="width: 100%"></select>
+                    <select id="approver-${rowId}" class="select2bs5 SelectApprover" style="width: 100%" required></select>
                 </td>
                 <td hidden>
                     <input class="form-control form-control-sm" id="esignature-${rowId}" data-signature value="">

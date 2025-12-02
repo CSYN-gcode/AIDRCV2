@@ -418,6 +418,7 @@ function SubmitNewApplication(array_documents){
 
 	let formData = new FormData($('#formAddApplication')[0]);
     let signatureData = [];
+    let hasMissingCoordinates = false;
 
     $("#dynamicTable tbody tr").each(function () {
         let row = $(this);
@@ -460,23 +461,27 @@ function SubmitNewApplication(array_documents){
                 });
             }
         }else{
-            signatureData.push({
-                x: '',
-                y: '',
-                approval_order: parseInt(approvalOrder),
-                page: parseInt(pageNumber),
-                path: '',
-                approver: selectedApprover,
-                canvasWidth: CanvasWidth,
-                canvasHeight: CanvasHeight,
-                pdfWidth: pdfwidth,
-                pdfHeight: pdfheight,
-            });
+            hasMissingCoordinates = true;
+            return;
+            // signatureData.push({
+            //     x: '',
+            //     y: '',
+            //     approval_order: parseInt(approvalOrder),
+            //     page: parseInt(pageNumber),
+            //     path: '',
+            //     approver: selectedApprover,
+            //     canvasWidth: CanvasWidth,
+            //     canvasHeight: CanvasHeight,
+            //     pdfWidth: pdfwidth,
+            //     pdfHeight: pdfheight,
+            // });
         }
     });
 
-    // After building signatureData
-    let hasMissingCoordinates = false;
+    if (hasMissingCoordinates) {
+        toastr.error("Please select approver first.");
+        return;
+    }
 
     signatureData.forEach(sig => {
         if (sig.approver && (sig.x === '' || sig.y === '' || sig.x === undefined || sig.y === undefined)) {
@@ -1405,6 +1410,8 @@ function SubmitEditApplication(){
 	let form_data = new FormData($('#formEditApplication')[0]);
     let signatureData = [];
 
+    let hasMissingCoordinates = false;
+
     $("#editApproverTable tbody tr").each(function(){
         let row = $(this);
         let rowIndex = row.find(".previewPdfButton").data("row"); // Get row number
@@ -1449,23 +1456,26 @@ function SubmitEditApplication(){
                 });
             }
         }else{
-            signatureData.push({
-                x: '',
-                y: '',
-                approval_order: parseInt(approvalOrder),
-                page: parseInt(pageNumber),
-                path: '',
-                approver: selectedApprover,
-                canvasWidth: CanvasWidth,
-                canvasHeight: CanvasHeight,
-                pdfWidth: pdfwidth,
-                pdfHeight: pdfheight,
-            });
+            hasMissingCoordinates = true;
+            // signatureData.push({
+            //     x: '',
+            //     y: '',
+            //     approval_order: parseInt(approvalOrder),
+            //     page: parseInt(pageNumber),
+            //     path: '',
+            //     approver: selectedApprover,
+            //     canvasWidth: CanvasWidth,
+            //     canvasHeight: CanvasHeight,
+            //     pdfWidth: pdfwidth,
+            //     pdfHeight: pdfheight,
+            // });
         }
     });
 
-    // After building signatureData
-    let hasMissingCoordinates = false;
+    if (hasMissingCoordinates) {
+        toastr.error("Please select approver first.");
+        return;
+    }
 
     signatureData.forEach(sig => {
         if (sig.approver && (sig.x === '' || sig.y === '' || sig.x === undefined || sig.y === undefined)) {

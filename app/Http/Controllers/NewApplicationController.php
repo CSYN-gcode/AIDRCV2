@@ -153,8 +153,8 @@ class NewApplicationController extends Controller{
                 return $result;
             })
             ->addColumn('application_datetime', function ($application) {
-                $result = $application->created_at;
-                $formatted = date("M j, Y g:i A", strtotime($application->created_at));
+                $result = $application->updated_at;
+                $formatted = date("M j, Y g:i A", strtotime($application->updated_at));
                 return $formatted;
             })
             ->addColumn('originator', function ($application) {
@@ -1536,7 +1536,7 @@ class NewApplicationController extends Controller{
                             'application_type' => $request->view_application_type ?: 1,
                             'application_section_head' => $request->view_section_head_approver,
                             'updated_at' => date('Y-m-d H:i:s'),
-                            'status' => 1, //Back to Start Status
+                            'status' => 0, //Back to Start Status
                         ]);
                     }else{
                         // ORIGINAL EXCEL FILENAME
@@ -1578,7 +1578,7 @@ class NewApplicationController extends Controller{
                             'excel_filename' => $cleanedFilenameRaw,
                             'application_type' => $request->view_application_type ?: 1,
                             'updated_at' => date('Y-m-d H:i:s'),
-                            'status' => 1, //Back to Start Status
+                            'status' => 0, //Back to Start Status
                         ]);
                     }
 
