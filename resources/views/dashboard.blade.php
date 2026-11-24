@@ -264,6 +264,7 @@ $layout = 'layouts.user_layout';
                                             <table id="tbl_applications" class="table table-sm table-bordered table-striped table-hover" style="width: 100%; font-size: 85%;">
                                                 <thead>
                                                     <tr>
+                                                        <th hidden>ID</th>
                                                         <th>Action</th>
                                                         <th style="width: 20%;">Approval Status</th>
                                                         <th>Control Number</th>
@@ -3438,6 +3439,7 @@ $layout = 'layouts.user_layout';
             dt_applications = $('#tbl_applications').DataTable({
                 "processing": true,
                 "serverSide": true,
+                "searchDelay": 3000,
                 "ajax": {
                     url: "load_aidrc_applications_table",
                     // url: "load_acdcs_applications_table",
@@ -3455,6 +3457,7 @@ $layout = 'layouts.user_layout';
                     }
                 },
                 "columns": [
+                    { "data": "id", visible: false},
                     { "data": "action" },
                     { "data": "approver_status", width: '50px'},
                     { "data": "control_number" },
@@ -3471,7 +3474,7 @@ $layout = 'layouts.user_layout';
                     { "data": "application_approvers" },
                     { "data": "originator_remarks" },
                 ],
-                "order": [2, 'desc'],
+                "order": [0, 'desc'],
                 initComplete: function() {
                     // Set checkbox checked
                     $('#check_filter_status').prop('checked', true);
