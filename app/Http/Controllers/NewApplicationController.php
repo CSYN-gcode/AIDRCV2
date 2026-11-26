@@ -145,7 +145,7 @@ class NewApplicationController extends Controller{
         'esign_approver_details.user_details',
         'external_app_details',
         'department_details',
-        ])->where('logdel', 0)->whereIn('id', $arrayApplications)->orderBy('created_at', 'desc')->get();
+        ])->where('logdel', 0)->whereIn('id', $arrayApplications)->orderBy('id', 'desc')->get();
 
         return DataTables::of($applications3)
             ->addColumn('control_number', function ($application) {
@@ -267,8 +267,8 @@ class NewApplicationController extends Controller{
                     }
                     case 9: { //Completed
                         $result = "<strong style='color: #28a745;'>DOCUMENT CONTROLLED</strong><br>";
-                        $formatted = date("M j, Y g:i A", strtotime($application->updated_at));
-                        $result .= $formatted;
+                        // $formatted = date("M j, Y g:i A", strtotime($application->updated_at));
+                        // $result .= $formatted;
                         break;
                     }
                     default: {
@@ -366,15 +366,16 @@ class NewApplicationController extends Controller{
                         }
                     case 6: { //Cancelled
                             if($application->esign_approver_details && count($application->esign_approver_details) > 0){
-                                foreach ($application->esign_approver_details AS $esign_approver) {
-                                    $message = '';
-                                    $message .= 'Date: ';
-                                    $formatted = date("M j, Y g:i A", strtotime($esign_approver->updated_at));
-                                    $message .= $formatted;
-                                     $result .= '<br><span class="badge badge-warning">APPROVER #'. $esign_approver->approval_order. ': '.$esign_approver->user_details->name.'<br>'.$message.'</span>';
-                                }
+                                $result .= '<br><span class="badge badge-warning">DOCUMENT CANCELLED</span>';
+                                // foreach ($application->esign_approver_details AS $esign_approver){
+                                //     $message = '';
+                                //     $message .= 'Date: ';
+                                //     $formatted = date("M j, Y g:i A", strtotime($esign_approver->updated_at));
+                                //     $message .= $formatted;
+                                //      $result .= '<br><span class="badge badge-warning">APPROVER #'. $esign_approver->approval_order. ': '.$esign_approver->user_details->name.'</span>';
+                                // }
                             }else{
-                                    $result .= '<br><span class="badge badge-secondary">No Approvers</span>';
+                                $result .= '<br><span class="badge badge-secondary">No Approvers</span>';
                             }
                             break;
                         }
@@ -1009,7 +1010,9 @@ class NewApplicationController extends Controller{
             $file_extension_pdf = $uploadedPdfFile->getClientOriginalExtension();
 
             // 🔹 Remove special characters (keep only letters, numbers, spaces, dash, underscore)
-            $cleanName = preg_replace('/[^A-Za-z0-9 _-]/', '', $filename_pdf);
+            // Old code comment 12/09/2025
+            // $cleanName = preg_replace('/[^A-Za-z0-9 _-]/', '', $filename_pdf);
+            $cleanName = preg_replace('/[^\p{L}\p{N} _-]/u', '', $filename_pdf);
             // 🔹 Replace spaces with underscores for safety
             $cleanName = str_replace(' ', '_', $cleanName);
             // 🔹 Add timestamp or unique ID if needed
@@ -1421,7 +1424,7 @@ class NewApplicationController extends Controller{
 
                 Applications::where('id', $request->dcc_application_id)->update([
                     'status' => $status,
-                    'updated_at' => date('Y-m-d H:i:s'),
+                    // 'updated_at' => date('Y-m-d H:i:s'),
                 ]);
 
                 // if ($status == 8) {
@@ -1454,7 +1457,6 @@ class NewApplicationController extends Controller{
         $application_details = Applications::where('id', $request->view_application_id)->where('logdel', 0)->get();
 
         if ($validator->passes()) {
-
             if (count($application_details) > 0) {
                 try {
                     ApplicationRevisions::insert([
@@ -1582,14 +1584,14 @@ class NewApplicationController extends Controller{
                         ]);
                     }
 
-                    $signatureData = json_decode($request->signatureData, true);
-                    if($signatureData != null) {
-                        $status = 1;
-                    }else{
-                        $status = 1; //NO SIGNATURES
-                    }
+                    // $signatureData = json_decode($request->signatureData, true);
+                    // if($signatureData != null) {
+                    //     $status = 1;
+                    // }else{
+                    //     $status = 1; //NO SIGNATURES
+                    // }
 
-                    if($signatureData != null){
+                    // if($signatureData != null){
                         // Retrieve Approver Data from JSON
 
                         //🔴 Delete existing data
@@ -1606,7 +1608,7 @@ class NewApplicationController extends Controller{
                                 // 'dimensions' => $approver['canvasWidth'].'|'.$approver['canvasHeight'].'|'.$approver['pdfWidth'].'|'.$approver['pdfHeight'].'|'.$approver['path']
                             ]);
                         }
-                    }
+                    // }
 
                     return response()->json(['result' => 1, 'application_id' => $request->view_application_id]);
                 } catch (\Exception $e) {
@@ -1614,7 +1616,7 @@ class NewApplicationController extends Controller{
                     throw $e;
                     return response()->json(['result' => $e]);
                 }
-            } else {
+            }else{
                 return response()->json(['result' => 2]);
             }
         } else {
@@ -2075,7 +2077,7 @@ class NewApplicationController extends Controller{
         if(count($application) > 0){
             switch ($application[0]->status) {
                 case 1: {
-                        $send_to = ['dmmarmol@pricon.ph', 'stomela@pricon.ph', 'nvquidlat@pricon.ph'];
+                        $send_to = ['dmmarmol@pricon.ph', 'hanyayahan@pricon.ph', 'nvquidlat@pricon.ph'];
                         $send_cc = [$application[0]->originator_details->email];
 
                         Mail::send('mail.aidrc_dcc_validation', $data, function ($message) use ($send_to, $send_cc) {
@@ -2121,7 +2123,7 @@ class NewApplicationController extends Controller{
                     }
                 case 5: {
                         $send_to = [$application[0]->originator_details->email];
-                        $send_cc = ['nvquidlat@pricon.ph'];
+                        $send_cc = ['nvquidlat@pricon.ph', 'hanyayahan@pricon.ph'];
 
                         Mail::send('mail.aidrc_disapproved', $data, function ($message) use ($send_to, $send_cc) {
                             $message->to($send_to)->cc($send_cc)->subject('AIDRCV2: Application Disapproved');
@@ -2130,7 +2132,7 @@ class NewApplicationController extends Controller{
                     }
                 case 6: {
                         $send_to = [$application[0]->originator_details->email];
-                        $send_cc = ['nvquidlat@pricon.ph'];
+                        $send_cc = ['nvquidlat@pricon.ph', 'hanyayahan@pricon.ph'];
 
                         Mail::send('mail.aidrc_cancelled', $data, function ($message) use ($send_to, $send_cc) {
                             $message->to($send_to)->cc($send_cc)->subject('AIDRCV2: Application Cancelled');
@@ -2139,7 +2141,7 @@ class NewApplicationController extends Controller{
                     }
                 case 7: {
                         $send_to = [$application[0]->originator_details->email];
-                        $send_cc = ['nvquidlat@pricon.ph'];
+                        $send_cc = ['nvquidlat@pricon.ph', 'hanyayahan@pricon.ph'];
 
                         Mail::send('mail.aidrc_validated', $data, function ($message) use ($send_to, $send_cc) {
                             $message->to($send_to)->cc($send_cc)->subject('AIDRCV2: Application Validated!, For Control');
@@ -2148,7 +2150,7 @@ class NewApplicationController extends Controller{
                     }
                 case 8: {
                         $send_to = [$application[0]->originator_details->email];
-                        $send_cc = ['nvquidlat@pricon.ph'];
+                        $send_cc = ['nvquidlat@pricon.ph', 'hanyayahan@pricon.ph'];
 
                         Mail::send('mail.aidrc_validated', $data, function ($message) use ($send_to, $send_cc) {
                             $message->to($send_to)->cc($send_cc)->subject('AIDRCV2: Application Validated!, For Control');
