@@ -3439,6 +3439,7 @@ $layout = 'layouts.user_layout';
             dt_applications = $('#tbl_applications').DataTable({
                 "processing": true,
                 "serverSide": true,
+                "searchDelay": 3000,
                 "ajax": {
                     url: "load_aidrc_applications_table",
                     // url: "load_acdcs_applications_table",

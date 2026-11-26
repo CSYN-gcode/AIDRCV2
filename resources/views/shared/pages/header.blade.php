@@ -6,7 +6,7 @@
       <a class="nav-link" data-widget="pushmenu" href="#" id="btnExpandHeader"><i class="fas fa-bars"></i></a>
     </li>
     <li class="nav-item d-none d-sm-inline-block">
-      <a href="{{ route('dashboard') }}" class="nav-link">Application for Internal Document Revision Confirmation Version 2</a>
+      <a href="{{ route('dashboard') }}" class="nav-link"><strong>Application for Internal Document Revision Confirmation Version 2 (AIDRCV2) Date Released: July 17, 2025</strong></a>
     </li>
     <!-- <li class="nav-item d-none d-sm-inline-block">
       <a href="#" class="nav-link">Contact</a>
