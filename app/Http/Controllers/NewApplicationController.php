@@ -42,110 +42,65 @@ class NewApplicationController extends Controller{
     public function load_aidrc_applications_table(Request $request){
         session_start();
         $originator_id = $_SESSION['rapidx_user_id'];
-        $rapidx_user_dcc = RapidXUser::whereIn('department_id', [21, 22, 23, 1])->where('id', $originator_id)->get();
-        $applications = [];
-        if (count($rapidx_user_dcc) > 0){
-            $applications = Applications::with(['control_details' => function ($query2) {
-                $query2->where('logdel', 0);
-            }, 'department_details', 'self_details', 'head_approval_details' => function ($query) {
-                $query->orderBy('created_at', 'desc');
-            }])->where('logdel', 0)->orderBy('created_at', 'desc')->get();
-        }else{
-            $applications = Applications::with(['control_details' => function ($query2) {
-                $query2->where('logdel', 0);
-            }, 'department_details', 'self_details', 'head_approval_details' => function ($query) {
-                $query->orderBy('created_at', 'desc');
-            }, 'esign_approver_details' => function ($query3) use ($originator_id) {
-                $query3->whereNull('deleted_at');
-            }])
-            ->where('logdel', 0)
-            ->where(function ($query) use ($originator_id) {
-                $query->where('application_originator', $originator_id)
-                    ->orWhereHas('esign_approver_details', function ($q) use ($originator_id) {
-                        $q->where('approver_id', $originator_id)
-                            ->whereNull('deleted_at');
+        // One lookup of the logged-in user, resolved into the two access rules this endpoint uses
+        $current_user = RapidXUser::where('id', $originator_id)->first();
+        // Can see every application (DCC departments + dept 1)
+        $can_view_all = $current_user != null && in_array($current_user->department_id, [21, 22, 23, 1]);
+        // Gets the DCC Validation / Edit PDF buttons (active DCC staff + special accounts)
+        $is_dcc_user = $current_user != null && $current_user->user_stat == 1 && (
+            in_array($current_user->department_id, [21, 22, 23]) || $current_user->id == 8 || $current_user->id == '461'
+        );
+
+        // Single query: only the relations the columns below actually render
+        $query = Applications::with([
+            'esign_approver_details.user_details',
+            'external_app_details',
+            'department_details',
+            'originator_details',
+        ])->where('logdel', 0);
+
+        if (!$can_view_all){
+            $query->where(function ($q) use ($originator_id) {
+                $q->where('application_originator', $originator_id)
+                    ->orWhereHas('esign_approver_details', function ($q2) use ($originator_id) {
+                        $q2->where('approver_id', $originator_id);
                     });
-            })
-            // ->where('application_originator', $originator_id)
-            ->orderBy('created_at', 'desc')->get();
-            // orWhere('application_section_head', $originator_id)->get();
+            });
         }
 
         if(isset($request->check_section_department)) {
-            $applications = $applications->whereIn('department', $request->section_department);
+            $query->whereIn('department', (array) $request->section_department);
         }
 
         if(isset($request->check_originator)) {
-            $applications = $applications->whereIn('application_originator', $request->originator);
+            $query->whereIn('application_originator', (array) $request->originator);
         }
 
         if(isset($request->check_category)){
-            $applications = $applications->whereIn('document_category', $request->category);
+            $query->whereIn('document_category', (array) $request->category);
         }
 
         if(isset($request->check_app_status)){
-            $applications = $applications->whereIn('status', $request->app_status);
+            $query->whereIn('status', (array) $request->app_status);
         }
 
-        $applications_final = collect($applications)->flatten(1);
-        $arrayApplications = [];
-
-        // LOGIC TO FILTER APPLICATIONS BASED ON STATUS & CONNECTION TO THE APPROVERS
+        // "For my approval" filter: only status 4 applications where the user is the current (lowest-order pending) approver
         if(isset($request->check_status)){
-            foreach ($applications_final as $application){
-                // return $application;
-                // if ($application->status == 1){ //DCC Validation
-                //     $arrayApplications[] = $application->id;
-                // }else
-                // return $application;
-                if($application->status == 4) { //FOR APPROVAL
-                    // FOR APPROVAL – check if originator is current approver
-                    // if($application->esign_approver_details){ //check esign_approver
-
-                        // Find the minimum approval_order among pending approvers
-                        $pendingApprovers = collect($application->esign_approver_details)
-                                            ->filter(function ($item){
-                                                return $item->status == 0 && is_null($item->deleted_at);
-                                            });
-
-                        $minOrder = $pendingApprovers->min('approval_order');
-
-                        $isCurrentApprover = $pendingApprovers->contains(function ($approver) use ($originator_id, $minOrder) {
-                            return $approver->approver_id == $originator_id && $approver->approval_order == $minOrder;
-                        });
-
-                        if ($isCurrentApprover){
-                          $arrayApplications[] = $application->id;
-                        }
-                    // }
-                }
-            }
-        }else{
-            for($i = 0; $i < count($applications_final); $i++){
-                $arrayApplications[] = $applications_final[$i]->id;
-            }
+            $query->where('status', 4);
         }
 
-        // applications
-        // $applications3 = DB::connection('mysql')->table('applications')
-        //                     ->leftJoin('db_rapidx.users AS originator_name', 'applications.application_originator', '=', 'originator_name.id')
-        //                     ->leftJoin('esign_approvers', 'applications.id', '=', 'esign_approvers.application_id')
-        //                     ->leftJoin('db_rapidx.users AS approver_name', 'esign_approvers.approver_id', '=', 'approver_name.id')
-        //                     ->leftJoin('db_rapidx.departments', 'applications.department', '=', 'departments.department_id')
-        //                     ->select('*')
-        //                     ->where('applications.logdel', 0)
-        //                     ->whereIn('applications.id', $arrayApplications)
-        //                     ->orderBy('applications.created_at', 'desc')
-        //                     ->get();
-        // return $applications3;
+        $applications3 = $query->orderBy('id', 'desc')->get();
 
-        $applications3 = Applications::with(['control_details' => function ($query2) {
-            $query2->where('logdel', 0);
-        },
-        'esign_approver_details.user_details',
-        'external_app_details',
-        'department_details',
-        ])->where('logdel', 0)->whereIn('id', $arrayApplications)->orderBy('id', 'desc')->get();
+        if(isset($request->check_status)){
+            $applications3 = $applications3->filter(function ($application) use ($originator_id) {
+                $pendingApprovers = $application->esign_approver_details->where('status', 0);
+                $minOrder = $pendingApprovers->min('approval_order');
+
+                return $pendingApprovers->contains(function ($approver) use ($originator_id, $minOrder) {
+                    return $approver->approver_id == $originator_id && $approver->approval_order == $minOrder;
+                });
+            })->values();
+        }
 
         return DataTables::of($applications3)
             ->addColumn('control_number', function ($application) {
@@ -279,12 +234,6 @@ class NewApplicationController extends Controller{
                 return $result;
             })
             ->addColumn('application_approvers', function ($application) {
-                $qs_staff = $application->qs_inspector_details['name'] != NULL?$application->qs_inspector_details['name']:"NULL";
-                $prod_head = $application->prod_head_details['name'] != NULL?$application->prod_head_details['name']:"NULL";
-                $eng_head = $application->eng_head_details['name'] != NULL?$application->eng_head_details['name']:"NULL";
-                $qc_head = $application->qc_head_details['name'] != NULL?$application->qc_head_details['name']:"NULL";
-                $section_head = $application->section_head_details['name'] != NULL?$application->section_head_details['name']:"NULL";
-
                 $result = "";
                 switch ($application->status){
                     case 0: {
@@ -424,7 +373,7 @@ class NewApplicationController extends Controller{
                 }
                 return $result;
             })
-            ->addColumn('action', function ($application) use ($originator_id) {
+            ->addColumn('action', function ($application) use ($originator_id, $is_dcc_user) {
 
                 $result = "";
                 switch ($application->status) {
@@ -434,11 +383,8 @@ class NewApplicationController extends Controller{
                         break;
                     }
                     case 1: { //DCC Template Validation
-                            $user_details = RapidXUser::where('id', $originator_id)->where('user_stat', 1)->get();
-                            if (count($user_details) > 0) {
-                                if ($user_details[0]->department_id == 21 || $user_details[0]->department_id == 22 || $user_details[0]->department_id == 23 || $user_details[0]->id == 8 || $user_details[0]->id == '461') {
-                                    $result .= '<button type="button" class="btn btn-sm btn-block btn-warning btn-dcc-validation" data-toggle="modal" data-target="#modalDccValidations" title="For Initial DCC Confirmation" application-id='.$application->id.'><i class="fa fa-chevron-right"></i> DCC Validation Check</button>';
-                                }
+                            if ($is_dcc_user) {
+                                $result .= '<button type="button" class="btn btn-sm btn-block btn-warning btn-dcc-validation" data-toggle="modal" data-target="#modalDccValidations" title="For Initial DCC Confirmation" application-id='.$application->id.'><i class="fa fa-chevron-right"></i> DCC Validation Check</button>';
                             }
                             break;
                         }
@@ -454,7 +400,11 @@ class NewApplicationController extends Controller{
                             $result = "";
                                 // $approvers = $application->esign_approver_details;
                                 if($application->esign_approver_details->count() > 0){
-                                    $approver_list = EsignApprover::where('application_id', $application->id)->where('status', 0)->whereNull('deleted_at')->orderBy('approval_order', 'asc')->first();
+                                    // Already eager-loaded (relation excludes soft-deleted rows)
+                                    $approver_list = $application->esign_approver_details
+                                                        ->where('status', 0)
+                                                        ->sortBy('approval_order')
+                                                        ->first();
                                     if($approver_list){
                                         if($approver_list->approver_id == $originator_id || $originator_id == '461'){ //if application is not approved yet
                                             $result .= '<button type="button" class="btn btn-sm btn-block btn-success btn-head-approval" data-toggle="modal" data-target="#modalHeadApprover" title="Review Application" approving-as="2" application-id='.$application->id.' approval_order='.$approver_list->approval_order.' ><i class="fa fa-check-circle"></i> Review Application</button>';
@@ -485,13 +435,9 @@ class NewApplicationController extends Controller{
                     case 7: { //DOCUMENT FOR CONTROL - EDIT PDF
                             $result = "";
 
-                            $user_details = RapidXUser::where('id', $originator_id)->where('user_stat', 1)->get();
-                            if(count($user_details) > 0){
-                                if($user_details[0]->department_id == 21 || $user_details[0]->department_id == 22 || $user_details[0]->department_id == 23 || $user_details[0]->id == 8 || $user_details[0]->id == '461'){
-                                    $editPdfButton = '<button type="button" class="btn btn-sm btn-block btn-warning btn-edit-pdf" data-toggle="modal" data-target="#modalTest" application-id='.$application->id.' ><i class="fa fa-chevron-right"></i> Edit PDF</button>';
-                                }else{
-                                    $editPdfButton = '';
-                                }
+                            $editPdfButton = '';
+                            if($is_dcc_user){
+                                $editPdfButton = '<button type="button" class="btn btn-sm btn-block btn-warning btn-edit-pdf" data-toggle="modal" data-target="#modalTest" application-id='.$application->id.' ><i class="fa fa-chevron-right"></i> Edit PDF</button>';
                             }
 
                             // ExternalApplication

@@ -3476,9 +3476,10 @@ $layout = 'layouts.user_layout';
                 ],
                 "order": [0, 'desc'],
                 initComplete: function() {
-                    // Set checkbox checked
+                    // Sync the checkbox UI with #hidden_check_status (already 1 on first load).
+                    // Don't trigger 'change' here: its handler redraws the table and re-sends the same request.
                     $('#check_filter_status').prop('checked', true);
-                    $('#check_filter_status').trigger('change'); // safe here
+                    $('#filter_status').removeAttr('disabled');
                 }
                 // "columnDefs": [
                 //     { width: '50px', targets: 11 } // 3rd column (0-based index)
