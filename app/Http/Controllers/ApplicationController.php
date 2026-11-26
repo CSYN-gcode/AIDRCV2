@@ -36,10 +36,11 @@ class ApplicationController extends Controller{
         $application = Applications::/*where('application_originator', $rapidx_user_id)->*/where('document_number', $request->document_number)
                         ->where('document_revision_number', $request->revision_number)
                         ->where('logdel', 0)
-                        ->whereNotIn('status', [6, 7, 8, 9])
+                        ->whereNotIn('status', [6, 9])
                         ->count();
                         // ->toSql();
-        return $application;
+
+                        // return $application;
 
         if ($application > 0){ // with result
             return response()->json(['result' => 1]);
@@ -83,12 +84,12 @@ class ApplicationController extends Controller{
         $rapidx_user_dcc = AccessLevel::where('rapidx_id', $rapidx_user_id)->whereIn('access_level', [1, 2, 6])->orderBy('created_at', 'desc')->first();
 
 
-        if ($rapidx_user_dcc != null) {
+        if ($rapidx_user_dcc != null){
             $applications = Applications::with(['qs_inspector_details', 'section_head_details', 'originator_details', 'affected_documents_details.approver_details', 'affected_documents_details' => function ($query2) {
 
                 $query2->where('logdel', 0)->whereIn('approver_type', [2, 3, 4]);
             }, 'control_details']);
-        } else {
+        }else{
             $applications = Applications::with(['department_details', 'control_details', 'qs_inspector_details', 'section_head_details', 'originator_details', 'affected_documents_details.approver_details', 'affected_documents_details' => function ($query) use ($rapidx_user_id) {
 
                 $query->whereIn('approver_type', [2, 3, 4])->whereIn('document_status', [1, 2, 3, 4]);
@@ -1985,13 +1986,16 @@ class ApplicationController extends Controller{
 
     public function get_application_attachment(Request $request){
         $attachment = Applications::where('id', $request->application_id)->where('logdel', 0)->get();
-
         $newFilename = str_replace('modified_', '', $attachment[0]->aidrc_filename);
         $file =  storage_path()."/app/public/file_attachments/".$newFilename;
-        if (!file_exists($file)) {
-            abort(404, 'File not found.');
+        // $test_file = '/var/www/aidrc_v2_test/storage/app/public/file_attachments/1025-1490_ aidrc_attachment_20251020185806.pdf';
+        // return $file;
+        if (!file_exists($file)){
+            // abort(404, 'File not found.');
+            return response()->json(['result' => 0, 'message' => 'File not found.']);
         }
-        return response()->json(['file_name' => $newFilename,'file_path' => asset('/storage/app/public/file_attachments/'.$newFilename)]);
+
+        return response()->json(['result' => 1, 'file_name' => $newFilename,'file_path' => asset('/storage/app/public/file_attachments/'.$newFilename)]);
         // return response()->json(['result' => 1, 'file_path' => $file]);
     }
 
@@ -2011,7 +2015,11 @@ class ApplicationController extends Controller{
         $attachment = Applications::where('id', $request->application_id)->where('logdel', 0)->get();
         $file =  storage_path() . "/app/public/file_attachments/" . $attachment[0]->aidrc_excel_filename;
 
-        return Response::download($file, $attachment[0]->excel_filename);
+        return Response::download($file, $attachment[0]->excel_filename, [
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma'        => 'no-cache',
+            'Expires'       => '0',
+        ]);
     }
 
     public function send_mailer(Request $request){
@@ -2517,20 +2525,4 @@ class ApplicationController extends Controller{
         }
         $pdf->Output($attachment, 'I'); // Stream file
     }
-
-
-
-
-
-
-    //-----------------------CHANGE PROCESS FLOW WITH THIS ONE---------------------
-
-
-
-
-
-
-
-
-
 }

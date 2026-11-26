@@ -30,7 +30,6 @@ return [
     */
 
     // 'host' => env('MAIL_HOST', 'smtp.googlemail.com'),
-    // 'host' => env('MAIL_HOST', '192.168.3.254'),
     'host' => env('MAIL_HOST', 'mail3.pricon.ph'),
 
     /*
@@ -44,7 +43,6 @@ return [
     |
     */
 
-    // 'port' => env('MAIL_PORT', 25),
     'port' => env('MAIL_PORT', 465),
 
     /*
@@ -59,11 +57,8 @@ return [
     */
 
     'from' => [
-        // 'address' => env('MAIL_FROM_ADDRESS', 'pmiissnotif@gmail.com'),
-        // 'name' => env('MAIL_FROM_NAME', 'AIDRC Notification'),
-        // 'address' => env('MAIL_FROM_ADDRESS', 'AIDRCNotification@pricon.ph'),
-        'address' => env('MAIL_FROM_ADDRESS', 'issinfoservice@pricon.ph'),
-        'name' => env('MAIL_FROM_NAME', 'AIDRC Notification'),
+        'address' => env('MAIL_FROM_ADDRESS', 'issinfoservice@pricon.com'),
+        'name' => env('MAIL_FROM_NAME', 'TRDS HR Memo Notification'),
     ],
 
     /*
@@ -77,7 +72,6 @@ return [
     |
     */
 
-    // 'encryption' => env('MAIL_ENCRYPTION', 'null'),
     'encryption' => env('MAIL_ENCRYPTION', 'ssl'),
 
     /*

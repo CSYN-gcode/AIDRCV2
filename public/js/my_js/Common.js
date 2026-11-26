@@ -418,6 +418,7 @@ function SubmitNewApplication(array_documents){
 
 	let formData = new FormData($('#formAddApplication')[0]);
     let signatureData = [];
+    let hasMissingCoordinates = false;
 
     $("#dynamicTable tbody tr").each(function () {
         let row = $(this);
@@ -460,23 +461,27 @@ function SubmitNewApplication(array_documents){
                 });
             }
         }else{
-            signatureData.push({
-                x: '',
-                y: '',
-                approval_order: parseInt(approvalOrder),
-                page: parseInt(pageNumber),
-                path: '',
-                approver: selectedApprover,
-                canvasWidth: CanvasWidth,
-                canvasHeight: CanvasHeight,
-                pdfWidth: pdfwidth,
-                pdfHeight: pdfheight,
-            });
+            hasMissingCoordinates = true;
+            return;
+            // signatureData.push({
+            //     x: '',
+            //     y: '',
+            //     approval_order: parseInt(approvalOrder),
+            //     page: parseInt(pageNumber),
+            //     path: '',
+            //     approver: selectedApprover,
+            //     canvasWidth: CanvasWidth,
+            //     canvasHeight: CanvasHeight,
+            //     pdfWidth: pdfwidth,
+            //     pdfHeight: pdfheight,
+            // });
         }
     });
 
-    // After building signatureData
-    let hasMissingCoordinates = false;
+    if (hasMissingCoordinates) {
+        toastr.error("Please select approver first.");
+        return;
+    }
 
     signatureData.forEach(sig => {
         if (sig.approver && (sig.x === '' || sig.y === '' || sig.x === undefined || sig.y === undefined)) {
@@ -531,9 +536,11 @@ function SubmitNewApplication(array_documents){
     	data: formData,
     	dataType: "json",
     	beforeSend: function(){
-    		//$('#btnSubmitApplication').prop('disabled','disabled');
+    		$('#btnSubmitApplication').prop('disabled','disabled');
     	},
     	success: function(JsonObject){
+            $('#btnSubmitApplication').removeAttr('disabled');
+
     		if(JsonObject['result'] == 1){
     			toastr.success('Application Saved Successfully!');
     			$('#modalAddApplication').modal('hide');//clark comment
@@ -598,45 +605,101 @@ function SubmitNewApplication(array_documents){
 		          $('#add_doc_rev_no').addClass('is-invalid');
 		        }
 
-		        if(JsonObject['error']['add_section_head_approver'] === undefined){
-		          $('#add_section_head_approver').removeClass('is-invalid');
-		        }else{
-		          $('#add_section_head_approver').addClass('is-invalid');
+		        if(JsonObject['error']['add_attachment_excel'] === undefined){
+		          $('#add_attachment_excel').removeClass('is-invalid');
+                }else{
+		          $('#add_attachment_excel').addClass('is-invalid');
 		        }
 
-		        if(JsonObject['error']['add_production_head'] === undefined){
-		          $('#add_production_head').removeClass('is-invalid');
+		        // if(JsonObject['error']['add_section_head_approver'] === undefined){
+		        //   $('#add_section_head_approver').removeClass('is-invalid');
+		        // }else{
+		        //   $('#add_section_head_approver').addClass('is-invalid');
+		        // }
+
+		        // if(JsonObject['error']['add_production_head'] === undefined){
+		        //   $('#add_production_head').removeClass('is-invalid');
+		        // }else{
+		        //   $('#add_production_head').addClass('is-invalid');
+		        // }
+
+		        // if(JsonObject['error']['add_qc_head'] === undefined){
+		        //   $('#add_qc_head').removeClass('is-invalid');
+		        // }else{
+		        //   $('#add_qc_head').addClass('is-invalid');
+		        // }
+
+		        // if(JsonObject['error']['add_eng_head'] === undefined){
+		        //   $('#add_eng_head').removeClass('is-invalid');
+		        // }else{
+		        //   $('#add_eng_head').addClass('is-invalid');
+		        // }
+
+		        // if(JsonObject['error']['add_approver_priority'] === undefined){
+
+		        // }else{
+		        //   toastr.error('Please select your Initial Approver!');
+		        // }
+
+		        // if(JsonObject['error']['add_qs_inspector'] === undefined){
+		        //   $('#add_qs_inspector').removeClass('is-invalid');
+		        // }else{
+		        //   $('#add_qs_inspector').addClass('is-invalid');
+		        // }
+    		}
+    	},
+    	error: function(data, xhr, status){
+    		$('#btnSubmitApplication').removeAttr('disabled');
+            toastr.error('An error occured!\n' + 'Data: ' + data + "\n" + "XHR: " + xhr + "\n" + "Status: " + status);
+        }
+
+	});
+}
+
+
+function SubmitExternalApplication(SubmitMode){
+	let formDataExternalApp = new FormData($('#formAddExternalApplication')[0]);
+        // Add the variable to the form data
+        formDataExternalApp.append('submit_mode', SubmitMode);
+
+	$.ajax({
+		url: "submit_external_application",
+		method: "post",
+		processData: false,
+		contentType: false,
+    	data: formDataExternalApp,
+    	dataType: "json",
+    	beforeSend: function(){
+    		$('#btnSubmitExternalApplication').prop('disabled','disabled');
+    	},
+    	success: function(JsonObject){
+            $('#btnSubmitExternalApplication').removeAttr('disabled');
+
+    		if(JsonObject['result'] == 1){
+    			toastr.success('External Application Uploaded!');
+    			$('#modalAddExternalApplication').modal('hide');//clark comment
+
+    			dt_applications.draw();
+    		}else if(JsonObject['result'] == 0){
+    			toastr.success(JsonObject['message']);
+    		}else{
+       			toastr.error('External Application Upload Failed!');
+
+    			if(JsonObject['error']['reupload_attachment'] === undefined){
+		          $('#reupload_attachment').removeClass('is-invalid');
 		        }else{
-		          $('#add_production_head').addClass('is-invalid');
+		          $('#reupload_attachment').addClass('is-invalid');
 		        }
 
-		        if(JsonObject['error']['add_qc_head'] === undefined){
-		          $('#add_qc_head').removeClass('is-invalid');
+		        if(JsonObject['error']['reupload_attachment_excel'] === undefined){
+		          $('#reupload_attachment_excel').removeClass('is-invalid');
 		        }else{
-		          $('#add_qc_head').addClass('is-invalid');
-		        }
-
-		        if(JsonObject['error']['add_eng_head'] === undefined){
-		          $('#add_eng_head').removeClass('is-invalid');
-		        }else{
-		          $('#add_eng_head').addClass('is-invalid');
-		        }
-
-		        if(JsonObject['error']['add_approver_priority'] === undefined){
-
-		        }else{
-		          toastr.error('Please select your Initial Approver!');
-		        }
-
-		        if(JsonObject['error']['add_qs_inspector'] === undefined){
-		          $('#add_qs_inspector').removeClass('is-invalid');
-		        }else{
-		          $('#add_qs_inspector').addClass('is-invalid');
+		          $('#reupload_attachment_excel').addClass('is-invalid');
 		        }
     		}
     	},
     	error: function(data, xhr, status){
-    		//$('#btnSubmitApplication').removeAttr('disabled');
+    		$('#btnSubmitApplication').removeAttr('disabled');
             toastr.error('An error occured!\n' + 'Data: ' + data + "\n" + "XHR: " + xhr + "\n" + "Status: " + status);
         }
 
@@ -776,7 +839,6 @@ function GetEsignApprover(cboElement1, userId){
         },
         success: function (response) {
             let user_details = response['users'];
-            console.log('user_details', user_details);
             if(user_details.length > 0){
                     result = '<option value="" disabled selected> Select Approver Name </option>';
                 for(let index = 0; index < user_details.length; index++){
@@ -932,10 +994,8 @@ function SubmitHeadApproval(array_documents){
     			dt_applications.draw();
     			dt_head_approval_documents.draw();
 
-   				SendNewMailer(JsonObject['application_id']);//clark comment for now 07/05/2025 (TESTING)
-    		}
-    		else
-    		{
+   				SendNewMailer(JsonObject['application_id'], JsonObject['approval_order']);//clark comment for now 07/05/2025 (TESTING)
+    		}else{
     			toastr.error('Application Review Failed!');
 
     			if(JsonObject['error']['head_approval_remarks'] === undefined)
@@ -1112,6 +1172,8 @@ function LoadViewApplicationDetails(application_id, view_edit){
 				let department = JsonObject['application_details'][0].department;
 				let originator = JsonObject['application_details'][0].application_originator;
 				let created_at = JsonObject['application_details'][0].created_at;
+				let originator_remarks = JsonObject['application_details'][0].originator_remarks;
+				let application_type = JsonObject['application_details'][0].application_type;
 
 				if(document_number != null){
 					$('#view_doc_no').val(document_number);
@@ -1129,6 +1191,22 @@ function LoadViewApplicationDetails(application_id, view_edit){
 				$('#view_originator').val(originator);
 				$('#view_created_at').val(created_at);
 				$('#view_application_id').val(application_id);
+				$('#view_remarks').val(originator_remarks);
+				// $('#view_application_type').val(application_type);
+
+                if (esign_details.length > 0) {
+                    $('#editApproverWithEsignature').prop('checked', true);
+                    $('#editApproverWithEsignature').trigger('change');
+                }else{
+                    $('#editApproverWithEsignature').prop('checked', false);
+                    $('#editApproverWithEsignature').trigger('change');
+                }
+
+                if (application_type == 2) {
+                    $('#view_application_type').prop('checked', true);
+                }else{
+                    $('#view_application_type').prop('checked', false);
+                }
 
 				if(view_edit == 1){
 					if(application_status == 6 || application_status == 7 || application_status == 8){
@@ -1141,26 +1219,27 @@ function LoadViewApplicationDetails(application_id, view_edit){
 				}
 
                 $('#editApproverStatus').removeClass('d-none');
+                $('#editDateApproved').removeClass('d-none');
                 $('#editApproverRemarks').removeClass('d-none');
 
                 $('#edit_attachment').data('application-id', application_id);
-                console.log('testval', $('#edit_attachment').data('application-id'));
 
                 if($('#edit_attachment')[0].files.length > 0){
                     // Detect uploaded file (if any)
                     let uploadedFile = $('#edit_attachment')[0].files[0];
                     let filePath;
 
-                    console.log('Uploaded file detected:', uploadedFile);
-
                     // Use Object URL for preview
                     filePath = URL.createObjectURL(uploadedFile);
 
+                    console.log('Uploaded file detected:', uploadedFile);
+                    $('#edit_attachment_excel').prop('required', true);
+
                     $('#editApproverButton').attr('data-filepath', filePath);
                     // Since new file is uploaded, clear esign details
+                    console.log('set editApproverTable to empty');
                     $('#editApproverTable tbody').empty();
                     esign_details = []; // reset
-
                 }else{
                     console.log('Existing file:');
 
@@ -1168,128 +1247,142 @@ function LoadViewApplicationDetails(application_id, view_edit){
                     filePath = "http://rapidx/aidrc_v2/storage/app/public/file_attachments/"+filename;
 
                     $('#editApproverButton').attr('data-filepath', filePath);
-                    esign_details.forEach(row => {
-                        let status;
 
-                        if(row.status == 1){
-                            status = 'Approved';
-                        }else if(row.status == 2){
-                            status = 'Disapproved';
-                        }else{
-                            status = 'N/A';
-                        }
+                    if(esign_details != ''){
+                        $('#viewApproverTab').removeClass('d-none');
 
-                        if(row.remarks == null){
-                            remarks = 'No Record';
-                        }else{
-                            remarks = row.remarks;
-                        }
+                        esign_details.forEach(row => {
+                            let status;
 
-                        let coords = row.coordinates.split('|'); // "0.1885|0.1728" → [0.1885, 0.1728]
-                        let coordinateText = `X: ${coords[0]}, Y: ${coords[1]}`;
+                            if(row.status == 1){
+                                status = 'Approved';
+                            }else if(row.status == 2){
+                                status = 'Disapproved';
+                            }else{
+                                status = 'N/A';
+                            }
 
-                        var rowHtml = `
-                            <tr>
-                                <td id="approvalOrder-${row.approval_order}">${row.approval_order}</td>
-                                <td>
-                                    <select id="approver-${row.approval_order}" class="form-control form-control-sm select2bs5 SelectEditApprover"></select>
-                                </td>
-                                <td hidden>
-                                    <input class="form-control form-control-sm" id="esignature-${row.approval_order}" data-signature value="">
-                                </td>
-                                <td id="pageNumber-${row.approval_order}">${row.page_no}</td>
-                                <td id="coordinates-${row.approval_order}">${coordinateText}</td>
-                                <td id="status-${row.approval_order}">${status}</td>
-                                <td id="remarks-${row.approval_order}">${remarks}</td>
-                                <td>
-                                    <button type="button" class="btn btn-primary btn-sm previewPdfButton" data-row="${row.approval_order}" data-file-url="${filePath}">Preview PDF</button>
-                                    <button type="button" class="btn btn-danger btn-sm editApproverDeleteRow">Delete</button>
-                                </td>
-                            </tr>
-                        `;
+                            if(row.remarks == null){
+                                remarks = 'No Record';
+                            }else{
+                                remarks = row.remarks;
+                            }
 
-                        $('#editApproverTable tbody').append(rowHtml);
-                        // Populate SelectApprover dropdown
-                        GetEsignApprover($('.SelectEditApprover').last(), row.approver_id);
+                            if(row.updated_at == null){
+                                updated_at = 'No Record';
+                            }else{
+                                updated_at = row.updated_at;
+                            }
 
-                        $('.select2bs5').select2({
-                            width: '100%',
-                            theme: 'bootstrap-4'
+                            let coords = row.coordinates.split('|'); // "0.1885|0.1728" → [0.1885, 0.1728]
+                            let coordinateText = `X: ${coords[0]}, Y: ${coords[1]}`;
+
+                            console.log('set editApproverTable row');
+                            var rowHtml = `
+                                <tr>
+                                    <td id="approvalOrder-${row.approval_order}">${row.approval_order}</td>
+                                    <td>
+                                        <select id="approver-${row.approval_order}" class="form-control form-control-sm select2bs5 SelectEditApprover"></select>
+                                    </td>
+                                    <td hidden>
+                                        <input class="form-control form-control-sm" id="esignature-${row.approval_order}" data-signature value="">
+                                    </td>
+                                    <td id="pageNumber-${row.approval_order}">${row.page_no}</td>
+                                    <td id="coordinates-${row.approval_order}">${coordinateText}</td>
+                                    <td id="status-${row.approval_order}">${status}</td>
+                                    <td id="date_approved-${row.approval_order}">${updated_at}</td>
+                                    <td id="remarks-${row.approval_order}">${remarks}</td>
+                                    <td>
+                                        <button disabled type="button" class="btn btn-primary btn-sm previewPdfButton" data-row="${row.approval_order}" data-file-url="${filePath}">Preview PDF</button>
+                                        <button disabled type="button" class="btn btn-danger btn-sm editApproverDeleteRow">Delete</button>
+                                    </td>
+                                </tr>
+                            `;
+
+                            $('#editApproverTable tbody').append(rowHtml);
+                            // Populate SelectApprover dropdown
+                            GetEsignApprover($('.SelectEditApprover').last(), row.approver_id);
+
+                            $('.select2bs5').select2({
+                                width: '100%',
+                                theme: 'bootstrap-4'
+                            });
                         });
-                    });
+                    }else{
+                        $('#viewApproverTab').addClass('d-none');
+                    }
                 }
 
-                // // Detect uploaded file (if any)
-                // let uploadedFile = $('#edit_attachment')[0].files[0];
-                // let filePath;
+                if(JsonObject['application_details'][0].application_type == 2 && JsonObject['application_details'][0].external_app_details != null){
+                    if(JsonObject['application_details'][0].external_app_details.status == 1){
+                    console.log('testt1a');
 
-                // if (uploadedFile) {
-                //     console.log('Uploaded file detected:', uploadedFile);
+                    $('#viewExternalTab').removeClass('d-none');
 
-                //     // Use Object URL for preview
-                //     filePath = URL.createObjectURL(uploadedFile);
+                    $('#formEditApplication').find('#txtViewOrigPdf').val(JsonObject['application_details'][0].external_app_details.orig_original_filename);
+                    $('#formEditApplication').find('#txtViewOrigRaw').val(JsonObject['application_details'][0].external_app_details.orig_excel_filename);
+                    $('#formEditApplication').find('#txtViewExternalPdf').val(JsonObject['application_details'][0].external_app_details.external_original_filename);
+                    $('#formEditApplication').find('#txtViewExternalRaw').val(JsonObject['application_details'][0].external_app_details.external_excel_filename);
+                    $('#formEditApplication').find('#txtViewReuploadRemarks').val(JsonObject['application_details'][0].external_app_details.remarks);
 
-                //     // Since new file is uploaded, clear esign details
-                //     $('#editApproverTable tbody').empty();
-                //     esign_details = []; // reset
-                // }else{
-                    // console.log('Existing file:');
+                    let downloadBtnDivAttr = ['#OrigPdfAttachmentDiv','#OrigRawAttachmentDiv','#ExternalPdfAttachmentDiv','#ExternalRawAttachmentDiv'];
+                    let categories = ['orig_pdf', 'orig_raw', 'external_pdf', 'external_raw'];
+                    let hrefLinkOrigDoc = 'download_attached_document_new/'+application_id;
+                    // let hrefLinkOrigRawDoc = 'download_attached_doc_excel/'+application_id;
+                    let hrefLinkExternalDoc = 'download_external_application/'+JsonObject['application_details'][0].external_app_details.id;
 
-                    // filename = aidrc_filename.replace('modified_', '');
-                    // filePath = "http://rapidx/aidrc_v2/storage/app/public/file_attachments/"+filename;
+                    for(i = 0; i < downloadBtnDivAttr.length; i++){
 
-                    // $('#editApproverButton').attr('data-filepath', filePath);
-                    // esign_details.forEach(row => {
-                    //     let status;
+                        $('#formEditApplication').find(downloadBtnDivAttr[i] + ' .download-btn').remove(); // Clear existing download buttons if any
+                        // let hrefLink = (i < 2) ? hrefLinkOrigDoc : hrefLinkExternalDoc;
 
-                    //     if(row.status == 1){
-                    //         status = 'Approved';
-                    //     }else if(row.status == 2){
-                    //         status = 'Disapproved';
-                    //     }else{
-                    //         status = 'N/A';
-                    //     }
+                        if(i == 0){
+                            hrefLink = hrefLinkOrigDoc;
+                        }else{
+                            hrefLink = hrefLinkExternalDoc;
+                        }
 
-                    //     if(row.remarks == null){
-                    //         remarks = 'No Record';
-                    //     }else{
-                    //         remarks = row.remarks;
-                    //     }
+                        let variable = categories[i];
+                        let dl_orig_pdf = '';
 
-                    //     let coords = row.coordinates.split('|'); // "0.1885|0.1728" → [0.1885, 0.1728]
-                    //     let coordinateText = `X: ${coords[0]}, Y: ${coords[1]}`;
+                            dl_orig_pdf ='<a class="download-btn" href="'+hrefLink+'/'+variable+'" target="_blank">';
+                            dl_orig_pdf +='<button type="button" class="btn btn-primary btn-sm">';
+                            dl_orig_pdf +=     '<i class="fa-solid fa-file-arrow-down"></i>';
+                            dl_orig_pdf +=         '&nbsp;';
+                            dl_orig_pdf +=         'See Attachment';
+                            dl_orig_pdf +='</button>';
+                            dl_orig_pdf +='</a>';
 
-                    //     var rowHtml = `
-                    //         <tr>
-                    //             <td id="approvalOrder-${row.approval_order}">${row.approval_order}</td>
-                    //             <td>
-                    //                 <select id="approver-${row.approval_order}" class="form-control form-control-sm select2bs5 SelectEditApprover"></select>
-                    //             </td>
-                    //             <td hidden>
-                    //                 <input class="form-control form-control-sm" id="esignature-${row.approval_order}" data-signature value="">
-                    //             </td>
-                    //             <td id="pageNumber-${row.approval_order}">${row.page_no}</td>
-                    //             <td id="coordinates-${row.approval_order}">${coordinateText}</td>
-                    //             <td id="status-${row.approval_order}">${status}</td>
-                    //             <td id="remarks-${row.approval_order}">${remarks}</td>
-                    //             <td>
-                    //                 <button type="button" class="btn btn-primary btn-sm previewPdfButton" data-row="${row.approval_order}" data-file-url="${filePath}">Preview PDF</button>
-                    //                 <button type="button" class="btn btn-danger btn-sm editApproverDeleteRow">Delete</button>
-                    //             </td>
-                    //         </tr>
-                    //     `;
+                        $('#formEditApplication').find(downloadBtnDivAttr[i]).append(dl_orig_pdf);
+                    }
 
-                    //     $('#editApproverTable tbody').append(rowHtml);
-                    //     // Populate SelectApprover dropdown
-                    //     GetEsignApprover($('.SelectEditApprover').last(), row.approver_id);
+                    // let dl_orig_pdf ='<a href="download_external_application/'+JsonObject['application_details'][0].external_app_details.id+'/orig_pdf" target="_blank">';
+                    //     dl_orig_pdf +='<button type="button" class="btn btn-primary btn-sm">';
+                    //     dl_orig_pdf +=     '<i class="fa-solid fa-file-arrow-down"></i>';
+                    //     dl_orig_pdf +=         '&nbsp;';
+                    //     dl_orig_pdf +=         'See Attachment';
+                    //     dl_orig_pdf +='</button>';
+                    //     dl_orig_pdf +='</a>';
 
-                    //     $('.select2bs5').select2({
-                    //         width: '100%',
-                    //         theme: 'bootstrap-4'
-                    //     });
-                    // });
-                // }
+                    // $('#formEditApplication').find('#OrigPdfAttachmentDiv').append(dl_orig_pdf);
 
+                    // let dl_orig_raw ='<a href="download_external_application/'+JsonObject['application_details'][0].external_app_details.id+'/orig_raw" target="_blank">';
+                    //     dl_orig_raw +='<button type="button" class="btn btn-primary btn-sm">';
+                    //     dl_orig_raw +=     '<i class="fa-solid fa-file-arrow-down"></i>';
+                    //     dl_orig_raw +=         '&nbsp;';
+                    //     dl_orig_raw +=         'See Attachment';
+                    //     dl_orig_raw +='</button>';
+                    //     dl_orig_raw +='</a>';
+
+                    // $('#formEditApplication').find('#OrigRawAttachmentDiv').append(dl_orig_raw);
+                    }else{
+                        console.log('testt2b');
+                        $('#viewExternalTab').addClass('d-none');
+                    }
+                }else{
+                    console.log('testt2a');
+                    $('#viewExternalTab').addClass('d-none');
+                }
 				//draw tables
 				dt_view_affected_documents.draw();
 				dt_view_dcc_validations.draw();
@@ -1305,8 +1398,19 @@ function LoadViewApplicationDetails(application_id, view_edit){
 }
 
 function SubmitEditApplication(){
+    let $form = $("#formEditApplication")[0]; // get raw form element
+
+    // ✅ run native HTML5 validation before proceeding
+    if (!$form.checkValidity()){
+        $form.reportValidity(); // show the browser's validation popup
+        toastr.error('Please upload an excel file before submitting.');
+        return; // stop here if invalid
+    }
+
 	let form_data = new FormData($('#formEditApplication')[0]);
     let signatureData = [];
+
+    let hasMissingCoordinates = false;
 
     $("#editApproverTable tbody tr").each(function(){
         let row = $(this);
@@ -1321,10 +1425,18 @@ function SubmitEditApplication(){
         let pdfheight = $('#pdfPreview').data('pdfHeight');
 
         let canvas = $('#pdfPreview').find('canvas')[0];
-        let CanvasWidth = canvas.width;
-        let CanvasHeight = canvas.height;
+        let CanvasWidth = 0;
+        let CanvasHeight = 0;
 
-        if(coordinatesText !== "No coordinates selected") {
+        if (canvas) {
+            CanvasWidth = canvas.width;
+            CanvasHeight = canvas.height;
+        }
+
+        // let CanvasWidth = canvas.width;
+        // let CanvasHeight = canvas.height;
+
+        if(coordinatesText !== "No coordinates selected"){
             let matches = coordinatesText.match(/X:\s*([\d.]+),\s*Y:\s*([\d.]+)/);
             if (matches) {
                 let x = parseFloat(matches[1]);
@@ -1344,23 +1456,26 @@ function SubmitEditApplication(){
                 });
             }
         }else{
-            signatureData.push({
-                x: '',
-                y: '',
-                approval_order: parseInt(approvalOrder),
-                page: parseInt(pageNumber),
-                path: '',
-                approver: selectedApprover,
-                canvasWidth: CanvasWidth,
-                canvasHeight: CanvasHeight,
-                pdfWidth: pdfwidth,
-                pdfHeight: pdfheight,
-            });
+            hasMissingCoordinates = true;
+            // signatureData.push({
+            //     x: '',
+            //     y: '',
+            //     approval_order: parseInt(approvalOrder),
+            //     page: parseInt(pageNumber),
+            //     path: '',
+            //     approver: selectedApprover,
+            //     canvasWidth: CanvasWidth,
+            //     canvasHeight: CanvasHeight,
+            //     pdfWidth: pdfwidth,
+            //     pdfHeight: pdfheight,
+            // });
         }
     });
 
-    // After building signatureData
-    let hasMissingCoordinates = false;
+    if (hasMissingCoordinates) {
+        toastr.error("Please select approver first.");
+        return;
+    }
 
     signatureData.forEach(sig => {
         if (sig.approver && (sig.x === '' || sig.y === '' || sig.x === undefined || sig.y === undefined)) {
@@ -1383,6 +1498,7 @@ function SubmitEditApplication(){
     	data: form_data,
     	dataType: "json",
     	beforeSend: function(){
+            $('#btnSubmitEditApplication').prop('disabled', true);
     	},
     	success: function(JsonObject){
     		if(JsonObject['result'] == 1){
@@ -1415,11 +1531,13 @@ function SubmitEditApplication(){
     		}else{
        			toastr.error('Application Submission Failed!');
 
-    			if(JsonObject['error']['edit_attachment'] === undefined){
-		          $('#edit_attachment').removeClass('is-invalid');
-		        }else{
-		          $('#edit_attachment').addClass('is-invalid');
-		        }
+                // if (JsonObject['error']['edit_excel_file'] === undefined) {
+                //     $("#edit_attachment_excel").removeClass('is-invalid');
+                //     $("#edit_attachment_excel").attr('title', '');
+                // } else {
+                //     $("#edit_attachment_excel").addClass('is-invalid');
+                //     $("#edit_attachment_excel").attr('title', response['error']['edit_excel_file']);
+                // }
 
 		        if(JsonObject['error']['view_doc_title'] === undefined){
 		          $('#view_doc_title').removeClass('is-invalid');
@@ -1567,18 +1685,16 @@ function SubmitEditAffectedDocument(){
 	});
 }
 
-function SendNewMailer(application_id){
+function SendNewMailer(application_id, approval_order = null){
 	$.ajax({
 		url: "send_new_mailer",
 		method: "get",
 		data:
 		{
-			application_id: application_id
+			application_id: application_id,
+			approval_order: approval_order
 		},
 		dataType: "json",
-		beforeSend: function(){
-
-		},
 		success: function(JsonObject){
 			if(JsonObject['result'] == 1){
 				toastr.success('Mail Sent to Recipients!');

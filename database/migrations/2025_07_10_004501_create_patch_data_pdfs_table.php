@@ -13,7 +13,7 @@ class CreatePatchDataPdfsTable extends Migration
      */
     public function up()
     {
-        Schema::create('patch_data_pdfs', function (Blueprint $table) {
+        Schema::create('patch_data_pdfs', function (Blueprint $table){
             $table->bigIncrements('id');
             $table->tinyInteger('status')->default(0)->comment ='0 - Pending, 1 - Done';
             $table->unsignedBigInteger('application_id')->comment ='ID from applications(table)';

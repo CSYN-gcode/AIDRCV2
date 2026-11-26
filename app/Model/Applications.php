@@ -24,7 +24,11 @@ class Applications extends Model
     protected $connection = "mysql";
 
     public function esign_approver_details(){
-        return $this->hasMany(EsignApprover::class, 'application_id', 'id');
+        return $this->hasMany(EsignApprover::class, 'application_id', 'id')->whereNull('deleted_at');
+    }
+
+    public function external_app_details(){
+        return $this->hasOne(ExternalApplication::class, 'application_id', 'id')->whereNull('deleted_at');
     }
 
     public function self_details()
@@ -36,7 +40,6 @@ class Applications extends Model
     {
     	return $this->hasOne(RapidXUser::class, 'id', 'application_originator');
     }
-
 
     public function section_head_details()
     {
